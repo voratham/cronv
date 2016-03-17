@@ -5,7 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"cronv"
+	"github.com/takumakanari/cronv"
 	"os"
 	"strconv"
 	"strings"

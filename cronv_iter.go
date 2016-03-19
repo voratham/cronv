@@ -1,7 +1,7 @@
 package cronv
 
 import (
-	"github.com/takumakanari/cronexpr"
+	"github.com/gorhill/cronexpr"
 	"time"
 )
 

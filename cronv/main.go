@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+const VERSION = "0.1.0"
+
 const TEMPLATE = `
 <html>
 <head>

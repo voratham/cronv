@@ -1,20 +1,10 @@
-0 2 1-10 * * du -h --max-depth=1 /
-15 6 2 1 * /home/melissa/backup.sh
-15 06 02 Jan * /home/melissa/backup.sh
-0 9-18 * * * /home/carl/hourly-archive.sh
-0 9,18 * * Mon /home/wendy/script.sh
-30 22 * * Mon,Tue,Wed,Thu,Fri /usr/local/bin/backup
-00 10 * * * /bin/ls >/ls.txt
-30 0 * * *   root   find /tmp -type f -empty -delete
-15  17 *  *  *  /opt/myscripts/hoge.sh >/dev/null 2>&1
-* * * * * /opt/myscripts/asyncjobexe/Fuga.sh  >/dev/null 2>&1
-*/3 * * * * /opt/myscripts/Hey.sh  >/dev/null 2>&1
-5,10,15,20,25,30,35,40,45 12 * * * sh /opt/myscripts/Hellp.sh `date "+%Y%m%d%H%M%S" -d '5 minutes ago'` `date "+%Y%m%d%H%M%S"`
-15 0 * * * /home/hoge/scripts/testing/testing.sh umpstrchk >/dev/null 2>&1
-00 8 * * * /home/hoge/scripts/bin/test.sh 1 > /dev/null 2>&1
-32 08 * * * /home/hoge/scripts/bin/checkexec.sh hoge > /dev/null 2>&1
-0 9 * * * /home/hoge/scripts/bin/exec.sh aaaa > /dev/null 2>&1
-0,30 15-20 * * * sh /home/hoge/scripts/bin/data/data_update.sh > /dev/null 2>&1
-0 8 * * * /home/hoge/scripts/bin/exec.sh data > /dev/null 2>&1
-30 16 * * * /home/hoge/scripts/bin/exec.sh data > /dev/null 2>&1
-# 30 16 * * * /home/hoge/scripts/bin/exec.sh data > /dev/null 2>&1
+# crontab example entries from https://help.ubuntu.com/community/CronHowto
+01 04 1 1 1 /usr/bin/somedirectory/somecommand1
+01 04 * * * /usr/bin/somedirectory/somecommand2
+01,31 04,05 1-15 1,6 * /usr/bin/somedirectory/somecommand3
+*/5 * * * * /usr/bin/somedirectory/somecommand4
+*/10 * * * * /usr/bin/somedirectory/somecommand5
+0,10,20,30,40,50 * * * * /usr/bin/somedirectory/somecommand6
+00 01 * * * rusty /home/rusty/rusty-list-files.sh
+00 06 * * * env DISPLAY=:0 gui_appname
+45 04 * * * /usr/bin/updatedb

@@ -9,86 +9,16 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 )
 
 const VERSION = "0.1.0"
 
 const (
-	OPT_DATE_FORMAT = "2006/01/02"
-	OPT_TIME_FORMAT = "15:04"
+	OPT_DATE_FORMAT         = "2006/01/02"
+	OPT_TIME_FORMAT         = "15:04"
+	OPT_OUTPUT_PATH_DEFAULT = "./crontab.html"
 )
-
-const TEMPLATE = `
-<html>
-<head>
-<title>cronv | {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Duration}}</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-</head>
-<body>
-  <div class="container-fluid">
-    <h1>cronv</h1>
-    <p>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Duration}}</p>
-    <div id="cronv-timeline" style="height:100%; width:100%;">
-      <b>Loading...</b>
-    </div>
-  </div>
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  <script type="text/javascript">
-     google.charts.load("current", {packages:["timeline"]});
-     google.charts.setOnLoadCallback(function() {
-       var container = document.getElementById('cronv-timeline');
-       var chart = new google.visualization.Timeline(container);
-       var dataTable = new google.visualization.DataTable();
-        dataTable.addColumn({ type: 'string', id: 'job' });
-        dataTable.addColumn({ type: 'string', id: 'dummy bar label' });
-        dataTable.addColumn({ type: 'string', role: 'tooltip' });
-        dataTable.addColumn({ type: 'date', id: 'Start' });
-        dataTable.addColumn({ type: 'date', id: 'End' });
-        var rows = [
-          {{range $index, $cronv := .CronEntries}}
-            {{range CronvIter $cronv}}
-              {{ $job := JSEscapeString $cronv.Crontab.Job }}
-              {{ $startFormatted := DateFormat .Start "15:04" }}
-              ['{{$job}}', '', '{{$startFormatted}} {{$job}}', {{NewJsDate .Start}}, {{NewJsDate .End}}],
-            {{end}}
-          {{end}}
-        ];
-        if (rows.length > 0) {
-          dataTable.addRows(rows);
-          chart.draw(dataTable, {
-            timeline: {
-              colorByRowLabel: true,
-            },
-            avoidOverlappingGridLines: false
-          });
-        } else {
-          container.innerHTML = '<div class="alert alert-success"><strong>Woops!</strong> There is no data!</div>';
-        }
-     });
-  </script>
-</body>
-</html>
-`
-
-func makeTemplate() *template.Template {
-	funcMap := template.FuncMap{
-		"CronvIter": func(cronv *cronv.Cronv) <-chan *cronv.Exec {
-			return cronv.Iter()
-		},
-		"JSEscapeString": func(v string) string {
-			return template.JSEscapeString(v)
-		},
-		"NewJsDate": func(v time.Time) string {
-			return fmt.Sprintf("new Date(%d,%d,%d,%d,%d)", v.Year(), v.Month(), v.Day(), v.Hour(), v.Minute())
-		},
-		"DateFormat": func(v time.Time, format string) string {
-			return v.Format(format)
-		},
-	}
-	return template.Must(template.New("").Funcs(funcMap).Parse(TEMPLATE))
-}
 
 func optimizeTime(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.UTC)
@@ -133,7 +63,7 @@ func main() {
 	now := optimizeTime(time.Now())
 
 	for _, f := range []string{"o", "output"} {
-		flag.StringVar(&outputFilePath, f, "./crontab.html", "path/to/htmlfile to output.")
+		flag.StringVar(&outputFilePath, f, OPT_OUTPUT_PATH_DEFAULT, "path to .html file to output.")
 	}
 	for _, f := range []string{"d", "duration"} {
 		flag.StringVar(&duration, f, "6h",
@@ -177,7 +107,7 @@ func main() {
 		panic(err)
 	}
 
-	makeTemplate().Execute(output, map[string]interface{}{
+	cronv.MakeTemplate().Execute(output, map[string]interface{}{
 		"CronEntries": cronEntries,
 		"TimeFrom":    timeFrom,
 		"Duration":    duration,

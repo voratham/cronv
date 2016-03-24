@@ -43,30 +43,43 @@ You can see the basically crontab specofication in [https://en.wikipedia.org/wik
 
 - -d, -duration=1h : Duration to visualize, in %d{d,h,m} style, '6h' is used by default.
 - -o, -output=./my_cron_schedule.html : Path to html file for output, './crontab.html' is used by default.
+- -from-date=2016-11-08 : Start date in the format '2006/01/02' to visualize, current date is used by default.
+- -from-time=01:30 : Start time in the format '15:04' to visualize, current time is used by default.
 - -h, -help : Show help message.
 
 ## Examples
-Analyze crontab for 6 hours (by default) fron now, , output html file to default path:
+Analyze crontab for 6 hours (by default) from now, , output html file to default path:
 ```shell
 $ crontab -l | cronv
 ```
 
-Analyze crontab for 1 day from now, output html file to default path:
+For 1 day from now, output html file to default path:
 
 ```shell
 $ crontab -l | cronv -d 1d
 ```
 
-Analyze crontab for 30 minuts from now, output html file to path/to/output.html:
+For 12 hours from 21:00, today:
+
+```shell
+$ crontab -l | cronv -from-time 21:00 -d 12h
+```
+
+For 30 minuts from now, output html file to path/to/output.html:
 
 ```shell
 $ crontab -l | cronv -d 30m -o path/to/output.html
 ```
 
+For 2 hours from 2016/12/24 17:30, output html file to path/to/output2.html:
+
+```shell
+$ crontab -l | cronv -from-date '2016/12/24' -from-time 17:30 -d 2h -o path/to/output2.html
+```
+
 
 ## TODO
 
-- Add 'from_time' can be specifing as cmd option.
 - Add output format/style other than HTML.
 - Filter entries in output HTML file.
 

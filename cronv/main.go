@@ -15,6 +15,11 @@ import (
 
 const VERSION = "0.1.0"
 
+const (
+	OPT_DATE_FORMAT = "2006/01/02"
+	OPT_TIME_FORMAT = "15:04"
+)
+
 const TEMPLATE = `
 <html>
 <head>
@@ -56,7 +61,7 @@ const TEMPLATE = `
             timeline: {
               colorByRowLabel: true,
             },
-            avoidOverlappingGridLines: false  
+            avoidOverlappingGridLines: false
           });
         } else {
           container.innerHTML = '<div class="alert alert-success"><strong>Woops!</strong> There is no data!</div>';
@@ -113,18 +118,37 @@ func durationToMinutes(s string) (float64, error) {
 	return 0, errors.New(fmt.Sprintf("Invalid duration format: '%s', '%s' is not in d/h/m", s, unit))
 }
 
+func toFromTime(d string, t string) (time.Time, error) {
+	return time.Parse(fmt.Sprintf("%s %s", OPT_DATE_FORMAT, OPT_TIME_FORMAT),
+		fmt.Sprintf("%s %s", d, t))
+}
+
 func main() {
 	var (
 		outputFilePath string
 		duration       string
+		fromDate       string
+		fromTime       string
 	)
+	now := optimizeTime(time.Now())
+
 	for _, f := range []string{"o", "output"} {
 		flag.StringVar(&outputFilePath, f, "./crontab.html", "path/to/htmlfile to output.")
 	}
 	for _, f := range []string{"d", "duration"} {
-		flag.StringVar(&duration, f, "6h", "duration to visualize in N{suffix} style. e.g.) 1d(day)/1h(hour)/1m(minute)")
+		flag.StringVar(&duration, f, "6h",
+			"duration to visualize in N{suffix} style. e.g.) 1d(day)/1h(hour)/1m(minute).")
 	}
+	flag.StringVar(&fromDate, "from-date", now.Format(OPT_DATE_FORMAT),
+		fmt.Sprintf("start date in the format '%s' to visualize.", OPT_DATE_FORMAT))
+	flag.StringVar(&fromTime, "from-time", now.Format(OPT_TIME_FORMAT),
+		fmt.Sprintf("start time in the format '%s' to visualize.", OPT_TIME_FORMAT))
 	flag.Parse()
+
+	timeFrom, err := toFromTime(fromDate, fromTime)
+	if err != nil {
+		panic(err)
+	}
 
 	durationMinutes, err := durationToMinutes(duration)
 	if err != nil {
@@ -138,7 +162,6 @@ func main() {
 
 	cronEntries := []*cronv.Cronv{}
 	scanner := bufio.NewScanner(os.Stdin)
-	timeFrom := optimizeTime(time.Now())
 
 	for scanner.Scan() {
 		line := scanner.Text()

@@ -22,43 +22,28 @@ func main() {
 		os.Exit(1)
 	}
 
-	timeFrom, err := opts.ToFromTime()
+	ctx, err := cronv.NewCtx(opts)
 	if err != nil {
 		panic(err)
 	}
 
-	durationMinutes, err := opts.ToDurationMinutes()
-	if err != nil {
-		panic(err)
-	}
-
-	output, err := os.Create(opts.OutputFilePath)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to handle output file: %s", err))
-	}
-
-	cronEntries := []*cronv.Cronv{}
 	scanner := bufio.NewScanner(os.Stdin)
-
 	for scanner.Scan() {
 		line := scanner.Text()
 		if len(line) > 0 && string(line[0]) != "#" {
-			cronv, err := cronv.NewCronv(line, timeFrom, durationMinutes)
-			if err != nil {
-				panic(fmt.Sprintf("Failed to analyze cron '%s': %s", line, err))
+			if err := ctx.AppendNewLine(line); err != nil {
+				panic(err)
 			}
-			cronEntries = append(cronEntries, cronv)
 		}
 	}
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
 
-	cronv.MakeTemplate().Execute(output, map[string]interface{}{
-		"CronEntries": cronEntries,
-		"TimeFrom":    timeFrom,
-		"Duration":    opts.Duration,
-	})
+	path, err := ctx.Dump()
+	if err != nil {
+		panic(err)
+	}
 
-	fmt.Printf("'%s' generated successfully.\n", opts.OutputFilePath)
+	fmt.Printf("'%s' generated successfully.\n", path)
 }

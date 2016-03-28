@@ -57,32 +57,28 @@ func (self *Cronv) Iter() <-chan *Exec {
 }
 
 type CronvCtx struct {
-	opts            *Command
-	timeFrom        time.Time
+	Opts            *Command
+	TimeFrom        time.Time
+	CronEntries     []*Cronv
 	durationMinutes float64
-	cronEntries     []*Cronv
 }
 
 func (self *CronvCtx) AppendNewLine(line string) error {
-	cronv, err := NewCronv(line, self.timeFrom, self.durationMinutes)
+	cronv, err := NewCronv(line, self.TimeFrom, self.durationMinutes)
 	if err != nil {
 		return fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
 	}
-	self.cronEntries = append(self.cronEntries, cronv)
+	self.CronEntries = append(self.CronEntries, cronv)
 	return nil
 }
 
 func (self *CronvCtx) Dump() (string, error) {
-	output, err := os.Create(self.opts.OutputFilePath)
+	output, err := os.Create(self.Opts.OutputFilePath)
 	if err != nil {
 		return "", err
 	}
-	MakeTemplate().Execute(output, map[string]interface{}{
-		"CronEntries": self.cronEntries,
-		"TimeFrom":    self.timeFrom,
-		"Duration":    self.opts.Duration,
-	})
-	return self.opts.OutputFilePath, nil
+	MakeTemplate().Execute(output, self)
+	return self.Opts.OutputFilePath, nil
 }
 
 func NewCtx(opts *Command) (*CronvCtx, error) {
@@ -97,9 +93,9 @@ func NewCtx(opts *Command) (*CronvCtx, error) {
 	}
 
 	return &CronvCtx{
-		opts:            opts,
-		timeFrom:        timeFrom,
+		Opts:            opts,
+		TimeFrom:        timeFrom,
+		CronEntries:     []*Cronv{},
 		durationMinutes: durationMinutes,
-		cronEntries:     []*Cronv{},
 	}, nil
 }

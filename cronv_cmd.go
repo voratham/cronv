@@ -11,6 +11,7 @@ import (
 const (
 	OPT_DATE_FORMAT         = "2006/01/02"
 	OPT_TIME_FORMAT         = "15:04"
+	OPT_DURATION_DEFAULT    = "6h"
 	OPT_OUTPUT_PATH_DEFAULT = "./crontab.html"
 )
 
@@ -55,7 +56,7 @@ func NewCronvCommand() *Command {
 	now := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.UTC)
 	return &Command{
 		OutputFilePath: OPT_OUTPUT_PATH_DEFAULT,
-		Duration:       "6h",
+		Duration:       OPT_DURATION_DEFAULT,
 		FromDate:       now.Format(OPT_DATE_FORMAT),
 		FromTime:       now.Format(OPT_TIME_FORMAT),
 	}

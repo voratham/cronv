@@ -1,7 +1,9 @@
 package cronv
 
 import (
+	"fmt"
 	"github.com/gorhill/cronexpr"
+	"os"
 	"time"
 )
 
@@ -52,4 +54,48 @@ func (self *Cronv) Iter() <-chan *Exec {
 		close(ch)
 	}()
 	return ch
+}
+
+type CronvCtx struct {
+	Opts            *Command
+	TimeFrom        time.Time
+	CronEntries     []*Cronv
+	durationMinutes float64
+}
+
+func (self *CronvCtx) AppendNewLine(line string) error {
+	cronv, err := NewCronv(line, self.TimeFrom, self.durationMinutes)
+	if err != nil {
+		return fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
+	}
+	self.CronEntries = append(self.CronEntries, cronv)
+	return nil
+}
+
+func (self *CronvCtx) Dump() (string, error) {
+	output, err := os.Create(self.Opts.OutputFilePath)
+	if err != nil {
+		return "", err
+	}
+	MakeTemplate().Execute(output, self)
+	return self.Opts.OutputFilePath, nil
+}
+
+func NewCtx(opts *Command) (*CronvCtx, error) {
+	timeFrom, err := opts.ToFromTime()
+	if err != nil {
+		return nil, err
+	}
+
+	durationMinutes, err := opts.ToDurationMinutes()
+	if err != nil {
+		return nil, err
+	}
+
+	return &CronvCtx{
+		Opts:            opts,
+		TimeFrom:        timeFrom,
+		CronEntries:     []*Cronv{},
+		durationMinutes: durationMinutes,
+	}, nil
 }

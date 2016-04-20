@@ -9,12 +9,12 @@ import (
 const TEMPLATE = `
 <html>
 <head>
-<title>cronv | {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</title>
+<title>{{.Opts.Title}} | {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 </head>
 <body>
   <div class="container-fluid">
-    <h1>cronv</h1>
+    <h1>{{.Opts.Title}}</h1>
     <p>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</p>
     <div id="cronv-timeline" style="height:100%; width:100%;">
       <b>Loading...</b>

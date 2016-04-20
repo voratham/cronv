@@ -45,5 +45,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("'%s' generated successfully.\n", path)
+	fmt.Printf("%s: '%s' generated successfully.\n", opts.Title, path)
 }

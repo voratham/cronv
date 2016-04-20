@@ -13,13 +13,15 @@ const (
 	OPT_TIME_FORMAT         = "15:04"
 	OPT_DURATION_DEFAULT    = "6h"
 	OPT_OUTPUT_PATH_DEFAULT = "./crontab.html"
+	OPT_TUTLE_DEFAULT       = "cronv"
 )
 
 type Command struct {
-	OutputFilePath string `short:"o" long:"output" description:"path to .html file to output."`
-	Duration       string `short:"d" long:"duration" description:"duration to visualize in N{suffix} style. e.g.) 1d(day)/1h(hour)/1m(minute)."`
+	OutputFilePath string `short:"o" long:"output" description:"path to .html file to output"`
+	Duration       string `short:"d" long:"duration" description:"duration to visualize in N{suffix} style. e.g.) 1d(day)/1h(hour)/1m(minute)"`
 	FromDate       string `long:"from-date" description:"start date in the format '2006/01/02' to visualize"`
 	FromTime       string `long:"from-time" description:"start time in the format '15:04' to visualize"`
+	Title          string `short:"t" long:"title" description:"title/label of output"`
 }
 
 func (self *Command) ToFromTime() (time.Time, error) {
@@ -59,5 +61,6 @@ func NewCronvCommand() *Command {
 		Duration:       OPT_DURATION_DEFAULT,
 		FromDate:       now.Format(OPT_DATE_FORMAT),
 		FromTime:       now.Format(OPT_TIME_FORMAT),
+		Title:          OPT_TUTLE_DEFAULT,
 	}
 }

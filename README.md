@@ -45,6 +45,7 @@ You can see the basically crontab specofication in [https://en.wikipedia.org/wik
 - -o, -output=./my_cron_schedule.html : Path to html file for output, './crontab.html' is used by default.
 - -from-date=2016-11-08 : Start date in the format '2006/01/02' to visualize, current date is used by default.
 - -from-time=01:30 : Start time in the format '15:04' to visualize, current time is used by default.
+- -t, -title=mycrontab : Title/label in output html file.
 - -h, -help : Show help message.
 
 ## Examples
@@ -75,6 +76,12 @@ For 2 hours from 2016/12/24 17:30, output html file to path/to/output2.html:
 
 ```shell
 $ crontab -l | cronv -from-date '2016/12/24' -from-time 17:30 -d 2h -o path/to/output2.html
+```
+
+With original title/label:
+
+```shell
+$ crontab -l | cronv -d 1d -t "crontab@`hostname`"  # title/label of html file will be 'crontab@myhost'
 ```
 
 

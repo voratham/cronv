@@ -13,7 +13,13 @@ Visualize your cron schedules in crontab
 ## Installation
 
 ```shell
-$ go install github.com/takumakanari/cronv/cronv
+$ go get github.com/takumakanari/cronv/cronv
+$ go build -o ./cronv github.com/takumakanari/cronv/cronv
+$ mv ./cronv /usr/local/bin # or anywhere
+```
+
+```shell
+$ cronv --help
 ```
 
 ## Basic usage
@@ -94,4 +100,3 @@ $ crontab -l | cronv -d 1d -t "crontab@`hostname`"  # title/label of html file w
 ## Patch
 
 Welcome!
-

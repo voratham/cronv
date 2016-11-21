@@ -77,9 +77,7 @@ func (self *CronvCtx) Dump() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := MakeTemplate().Execute(output, self); err != nil {
-		return "", err
-	}
+	MakeTemplate().Execute(output, self)
 	return self.Opts.OutputFilePath, nil
 }
 

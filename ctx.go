@@ -59,12 +59,13 @@ func (self *Cronv) Iter() <-chan *Exec {
 type CronvCtx struct {
 	Opts            *Command
 	TimeFrom        time.Time
+	TimeTo          time.Time
 	CronEntries     []*Cronv
-	durationMinutes float64
+	DurationMinutes float64
 }
 
 func (self *CronvCtx) AppendNewLine(line string) error {
-	cronv, err := NewCronv(line, self.TimeFrom, self.durationMinutes)
+	cronv, err := NewCronv(line, self.TimeFrom, self.DurationMinutes)
 	if err != nil {
 		return fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
 	}
@@ -92,10 +93,13 @@ func NewCtx(opts *Command) (*CronvCtx, error) {
 		return nil, err
 	}
 
+	timeTo := timeFrom.Add(time.Duration(durationMinutes) * time.Minute)
+
 	return &CronvCtx{
 		Opts:            opts,
 		TimeFrom:        timeFrom,
+		TimeTo:          timeTo,
 		CronEntries:     []*Cronv{},
-		durationMinutes: durationMinutes,
+		DurationMinutes: durationMinutes,
 	}, nil
 }

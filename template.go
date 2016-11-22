@@ -13,12 +13,30 @@ const TEMPLATE = `
 <script src="http://visjs.org/dist/vis.js"></script>
 <link href="http://visjs.org/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<style>
+body,html {
+  background: linear-gradient(180deg, #172429,#43565E);
+	color: #d3d3d3;
+}
+.header {
+  color: white;
+}
+// .vis-item {
+// 	border-color: #02D8D9;
+// 	background-color: #02D8D9;
+// }
+.vis-labelset .vis-label, .vis-time-axis .vis-text {
+	color: #d3d3d3;
+}
+</style>
 </head>
 <body>
   <div class="container-fluid">
-    <h1>{{.Opts.Title}}</h1>
-    <p>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</p>
-    <div id="cronv-timeline" style="height:100%; width:100%;"></div>
+    <h1 class="header">
+			{{.Opts.Title}}
+    	<small>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
+		</h1>
+    <div id="cronv-timeline" style="height:100%; width:100%;margin-top:25px;"></div>
   </div>
   <script type="text/javascript">
 		var groupCache = {},

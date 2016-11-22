@@ -43,12 +43,12 @@ body,html {
 				groups = new vis.DataSet(),
 				items = new vis.DataSet(),
 				itemId = 1;
+		{{ $shorten := AvgJobNameLen .CronEntries }}
 		{{ range $index, $cronv := .CronEntries }}
 			{{ $job := JSEscapeString $cronv.Crontab.Job }}
 			var itemSize = 0,
 					jobId = '{{ Md5Sum $job }}';
 			{{ range CronvIter $cronv }}
-				{{ $job := JSEscapeString $cronv.Crontab.Job }}
 				{{ $startFormatted := DateFormat .Start "2006-01-02 15:04" }}
 				items.add({
 					id: itemId++,
@@ -59,7 +59,8 @@ body,html {
 			{{ end }}
 			if (itemSize > 0) { // TODO add 'show all tasks' option
 				if (!groupCache[jobId]) {
-					groups.add({id: jobId, content: '{{ $job }}'});
+					{{ $jobNameShort := Shorten $cronv.Crontab.Job $shorten "..." }}
+					groups.add({id: jobId, content: '{{ JSEscapeString $jobNameShort }}'});
 					groupCache[jobId] = true;
 				}
 			}
@@ -93,6 +94,20 @@ func MakeTemplate() *template.Template {
 		},
 		"Md5Sum": func(data string) string {
 			return Md5Sum(data)
+		},
+		"AvgJobNameLen": func(cronv []*Cronv) int {
+			s := len(cronv)
+			if s == 0 {
+				return 0
+			}
+			i := 0
+			for _, c := range cronv {
+				i += len([]rune(c.Crontab.Job))
+			}
+			return i / s
+		},
+		"Shorten": func(v string, size int, suffix string) string {
+			return Shorten(v, size, suffix)
 		},
 	}
 	return template.Must(template.New("").Funcs(funcMap).Parse(TEMPLATE))

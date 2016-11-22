@@ -18,49 +18,42 @@ const TEMPLATE = `
   <div class="container-fluid">
     <h1>{{.Opts.Title}}</h1>
     <p>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</p>
-    <div id="cronv-timeline" style="height:100%; width:100%;">
-		 <!-- loading -->
-    </div>
+    <div id="cronv-timeline" style="height:100%; width:100%;"></div>
   </div>
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
-		var container = document.getElementById('cronv-timeline');
-
-		var groupCache = {};
-		var groups = new vis.DataSet();
-		var items = new vis.DataSet();
-		var itemId = 1;
-
+		var groupCache = {},
+				groups = new vis.DataSet(),
+				items = new vis.DataSet(),
+				itemId = 1;
 		{{ range $index, $cronv := .CronEntries }}
 			{{ $job := JSEscapeString $cronv.Crontab.Job }}
-			var gid = '{{ Md5Sum $job }}';
-			if (!groupCache[gid]) {
-				groups.add({id: gid, content: '{{ Md5Sum $job }}'});
-				groupCache[gid] = true;
-			}
+			var itemSize = 0,
+					jobId = '{{ Md5Sum $job }}';
 			{{ range CronvIter $cronv }}
 				{{ $job := JSEscapeString $cronv.Crontab.Job }}
 				{{ $startFormatted := DateFormat .Start "2006-01-02 15:04" }}
 				items.add({
 					id: itemId++,
-					group: '{{ Md5Sum $job }}',
-					start: '{{ $startFormatted }}',
-					end: '{{ $startFormatted }}'
+					group: jobId,
+					start: '{{ $startFormatted }}'
 				});
+				itemSize++;
 			{{ end }}
+			if (itemSize > 0) { // TODO add 'show all tasks' option
+				if (!groupCache[jobId]) {
+					groups.add({id: jobId, content: '{{ $job }}'});
+					groupCache[jobId] = true;
+				}
+			}
 		{{ end }}
-
 		var options = {
 	    showCurrentTime: true,
 	    start: '{{DateFormat .TimeFrom "2006/1/2 15:04"}}',
 	    end: '{{DateFormat .TimeTo "2006/1/2 15:04"}}',
-	    zoomMax: {{ .DurationMinutes }} * 60 * 1000
+	    zoomMax: {{ .DurationMinutes }} * 60 * 1000,
+			stack: false
 	  };
-	  var timeline = new vis.Timeline(container, items, options);
-	  timeline.setGroups(groups)
-
-
-
+		new vis.Timeline(document.getElementById('cronv-timeline'), items, options).setGroups(groups);
   </script>
 </body>
 </html>

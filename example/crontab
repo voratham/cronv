@@ -1,4 +1,5 @@
 # crontab example entries from https://help.ubuntu.com/community/CronHowto
+* *  * * * /usr/bin/updatedb
 01 04 1 1 1 /usr/bin/somedirectory/somecommand1
 01 04 * * * /usr/bin/somedirectory/somecommand2
 01,31 04,05 1-15 1,6 * /usr/bin/somedirectory/somecommand3

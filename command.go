@@ -13,7 +13,7 @@ const (
 	OPT_TIME_FORMAT         = "15:04"
 	OPT_DURATION_DEFAULT    = "6h"
 	OPT_OUTPUT_PATH_DEFAULT = "./crontab.html"
-	OPT_TUTLE_DEFAULT       = "cronv"
+	OPT_TUTLE_DEFAULT       = "cron tasks"
 )
 
 type Command struct {

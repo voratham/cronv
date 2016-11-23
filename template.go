@@ -11,7 +11,7 @@ const TEMPLATE = `
 <head>
 <title>{{.Opts.Title}} | {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</title>
 <script src="http://visjs.org/dist/vis.js"></script>
-<link href="http://visjs.org/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+<link href="http://visjs.org/dist/vis.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 <style>
 body,html {
@@ -21,22 +21,36 @@ body,html {
 .header {
   color: white;
 }
-// .vis-item {
-// 	border-color: #02D8D9;
-// 	background-color: #02D8D9;
-// }
 .vis-labelset .vis-label, .vis-time-axis .vis-text {
 	color: #d3d3d3;
+}
+.control {
+	margin-top: 25px;
+}
+#cronv-timeline {
+	height:100%;
+	width:100%;
+	margin-top:5px;
 }
 </style>
 </head>
 <body>
   <div class="container-fluid">
     <h1 class="header">
-			{{.Opts.Title}}
+			{{ .Opts.Title }}
     	<small>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
 		</h1>
-    <div id="cronv-timeline" style="height:100%; width:100%;margin-top:25px;"></div>
+		<div class="row control">
+			<div class="col-sm-12">
+				<button
+					type="button"
+					class="btn btn-primary btn-sm fit-tl"
+					onclick="(function(){window.tl.fit()})();">Fit</button>
+			</div>
+		</div>
+		<div class="row">
+    	<div class="col-sm-12" id="cronv-timeline" style=""></div>
+		</div>
   </div>
   <script type="text/javascript">
 		var groupCache = {},
@@ -58,10 +72,14 @@ body,html {
 				itemSize++;
 			{{ end }}
 			if (itemSize > 0) { // TODO add 'show all tasks' option
-				if (!groupCache[jobId]) {
+				var groupRef = groupCache[jobId];
+				if (!groupRef) {
 					{{ $jobNameShort := Shorten $cronv.Crontab.Job $shorten "..." }}
-					groups.add({id: jobId, content: '{{ JSEscapeString $jobNameShort }}'});
-					groupCache[jobId] = true;
+					var g = {id: jobId, content: '{{ JSEscapeString $jobNameShort }}', itemSize: itemSize};
+					groups.add(g);
+					groupCache[jobId] = g;
+				} else {
+					groupRef.itemSize = groupRef.itemSize + itemSize;
 				}
 			}
 		{{ end }}
@@ -70,9 +88,16 @@ body,html {
 	    start: '{{DateFormat .TimeFrom "2006/1/2 15:04"}}',
 	    end: '{{DateFormat .TimeTo "2006/1/2 15:04"}}',
 	    zoomMax: {{ .DurationMinutes }} * 60 * 1000,
-			stack: false
+			stack: false,
+			margin: {
+				item: 30
+			},
+			groupOrder: function(a, b) {
+				return a.itemSize - b.itemSize;
+			}
 	  };
-		new vis.Timeline(document.getElementById('cronv-timeline'), items, options).setGroups(groups);
+		window.tl = new vis.Timeline(document.getElementById('cronv-timeline'), items, options);
+		window.tl.setGroups(groups);
   </script>
 </body>
 </html>
@@ -104,7 +129,12 @@ func MakeTemplate() *template.Template {
 			for _, c := range cronv {
 				i += len([]rune(c.Crontab.Job))
 			}
-			return i / s
+			v := 0
+			if i%s > 0 {
+				v = 1
+			}
+			// FIXME devide by active tasks
+			return i/s + v
 		},
 		"Shorten": func(v string, size int, suffix string) string {
 			return Shorten(v, size, suffix)

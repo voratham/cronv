@@ -2,6 +2,7 @@ package cronv
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -45,7 +46,7 @@ const TEMPLATE = `
           dataTable.addRows(rows);
           chart.draw(dataTable, {
             timeline: {
-              colorByRowLabel: true,
+              colorByRowLabel: true
             },
             avoidOverlappingGridLines: false
           });
@@ -64,7 +65,7 @@ func MakeTemplate() *template.Template {
 			return cronv.Iter()
 		},
 		"JSEscapeString": func(v string) string {
-			return template.JSEscapeString(v)
+			return template.JSEscapeString(strings.TrimSpace(v))
 		},
 		"NewJsDate": func(v time.Time) string {
 			return fmt.Sprintf("new Date(%d,%d,%d,%d,%d)", v.Year(), v.Month(), v.Day(), v.Hour(), v.Minute())

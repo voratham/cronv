@@ -2,6 +2,7 @@ package cronv
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -57,7 +58,6 @@ body,html {
 				groups = new vis.DataSet(),
 				items = new vis.DataSet(),
 				itemId = 1;
-		{{ $shorten := AvgJobNameLen .CronEntries }}
 		{{ range $index, $cronv := .CronEntries }}
 			{{ $job := JSEscapeString $cronv.Crontab.Job }}
 			var itemSize = 0,
@@ -74,7 +74,7 @@ body,html {
 			if (itemSize > 0) { // TODO add 'show all tasks' option
 				var groupRef = groupCache[jobId];
 				if (!groupRef) {
-					{{ $jobNameShort := Shorten $cronv.Crontab.Job $shorten "..." }}
+					{{ $jobNameShort := FormatJobName $cronv.Crontab.Job 80 }}
 					var g = {id: jobId, content: '{{ JSEscapeString $jobNameShort }}', itemSize: itemSize};
 					groups.add(g);
 					groupCache[jobId] = g;
@@ -120,24 +120,19 @@ func MakeTemplate() *template.Template {
 		"Md5Sum": func(data string) string {
 			return Md5Sum(data)
 		},
-		"AvgJobNameLen": func(cronv []*Cronv) int {
-			s := len(cronv)
-			if s == 0 {
-				return 0
+		"FormatJobName": func(v string, max int) string {
+			dest := []string{}
+			n := 0
+			for _, c := range strings.Split(strings.TrimSpace(v), "") {
+				n += 1
+				if n > max {
+					dest = append(dest, "<br>"+c)
+					n = 0
+				} else {
+					dest = append(dest, c)
+				}
 			}
-			i := 0
-			for _, c := range cronv {
-				i += len([]rune(c.Crontab.Job))
-			}
-			v := 0
-			if i%s > 0 {
-				v = 1
-			}
-			// FIXME devide by active tasks
-			return i/s + v
-		},
-		"Shorten": func(v string, size int, suffix string) string {
-			return Shorten(v, size, suffix)
+			return strings.Join(dest, "")
 		},
 	}
 	return template.Must(template.New("").Funcs(funcMap).Parse(TEMPLATE))

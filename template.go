@@ -15,8 +15,9 @@ const TEMPLATE = `
 </head>
 <body>
   <div class="container-fluid">
-    <h1>{{.Opts.Title}}</h1>
-    <p>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</p>
+    <h1>
+			{{.Opts.Title}}&nbsp;<small>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
+		</h1>
     <div id="cronv-timeline" style="height:100%; width:100%;">
       <b>Loading...</b>
     </div>
@@ -33,15 +34,28 @@ const TEMPLATE = `
         dataTable.addColumn({ type: 'string', role: 'tooltip' });
         dataTable.addColumn({ type: 'date', id: 'Start' });
         dataTable.addColumn({ type: 'date', id: 'End' });
-        var rows = [
-          {{range $index, $cronv := .CronEntries}}
-            {{range CronvIter $cronv}}
-              {{ $job := JSEscapeString $cronv.Crontab.Job }}
-              {{ $startFormatted := DateFormat .Start "15:04" }}
-              ['{{$job}}', '', '{{$startFormatted}} {{$job}}', {{NewJsDate .Start}}, {{NewJsDate .End}}],
-            {{end}}
-          {{end}}
-        ];
+
+				var tasks = {};
+				{{range $index, $cronv := .CronEntries}}
+					{{ $job := JSEscapeString $cronv.Crontab.Job }}
+					tasks['{{$job}}'] = [];
+					{{range CronvIter $cronv}}tasks['{{$job}}'].push(['{{$job}}', '', '{{DateFormat .Start "15:04"}} {{$job}}', {{NewJsDate .Start}}, {{NewJsDate .End}}]);{{end}}
+				{{end}}
+
+				var taskByJobCount = [];
+				for (var k in tasks) taskByJobCount.push({name: k, size: tasks[k].length});
+				taskByJobCount.sort(function(a, b) {
+					if (a.size == b.size) return 0;
+					return a.size > b.size ? -1 : 1;
+				});
+
+				var rows = [];
+				for (var i = 0; i < taskByJobCount.length; i++) {
+					jobs = tasks[taskByJobCount[i].name];
+					var jl = jobs.length;
+					for (var j = 0; j < jl; j++) rows.push(jobs[j]);
+				}
+
         if (rows.length > 0) {
           dataTable.addRows(rows);
           chart.draw(dataTable, {

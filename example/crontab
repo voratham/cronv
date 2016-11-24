@@ -8,3 +8,4 @@
 00 01 * * * rusty /home/rusty/rusty-list-files.sh
 00 06 * * * env DISPLAY=:0 gui_appname
 45 04 * * * /usr/bin/updatedb
+*/1 * * * * /usr/bin/updatedb

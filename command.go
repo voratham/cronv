@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	OPT_DATE_FORMAT         = "2006/01/02"
-	OPT_TIME_FORMAT         = "15:04"
-	OPT_DURATION_DEFAULT    = "6h"
-	OPT_OUTPUT_PATH_DEFAULT = "./crontab.html"
-	OPT_TUTLE_DEFAULT       = "cron tasks"
+	opt_date_format         = "2006/01/02"
+	opt_time_format         = "15:04"
+	opt_default_duration    = "6h"
+	opt_default_output_path = "./crontab.html"
+	opt_default_title       = "cron tasks"
 )
 
 type Command struct {
@@ -25,7 +25,7 @@ type Command struct {
 }
 
 func (self *Command) ToFromTime() (time.Time, error) {
-	return time.Parse(fmt.Sprintf("%s %s", OPT_DATE_FORMAT, OPT_TIME_FORMAT),
+	return time.Parse(fmt.Sprintf("%s %s", opt_date_format, opt_time_format),
 		fmt.Sprintf("%s %s", self.FromDate, self.FromTime))
 }
 
@@ -57,10 +57,10 @@ func NewCronvCommand() *Command {
 	t := time.Now()
 	now := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.UTC)
 	return &Command{
-		OutputFilePath: OPT_OUTPUT_PATH_DEFAULT,
-		Duration:       OPT_DURATION_DEFAULT,
-		FromDate:       now.Format(OPT_DATE_FORMAT),
-		FromTime:       now.Format(OPT_TIME_FORMAT),
-		Title:          OPT_TUTLE_DEFAULT,
+		OutputFilePath: opt_default_output_path,
+		Duration:       opt_default_duration,
+		FromDate:       now.Format(opt_date_format),
+		FromTime:       now.Format(opt_time_format),
+		Title:          opt_default_title,
 	}
 }

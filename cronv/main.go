@@ -19,7 +19,7 @@ func main() {
 	parser := flags.NewParser(opts, flags.Default)
 	parser.Name = fmt.Sprintf("%s v%s", NAME, VERSION)
 	if _, err := parser.Parse(); err != nil {
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	ctx, err := cronv.NewCtx(opts)
@@ -45,5 +45,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%s: '%s' generated successfully.\n", opts.Title, path)
+	fmt.Printf("[%s] %d tasks.\n", opts.Title, len(ctx.CronEntries))
+	fmt.Printf("[%s] '%s' generated.\n", opts.Title, path)
 }

@@ -66,7 +66,12 @@ type CronvCtx struct {
 func (self *CronvCtx) AppendNewLine(line string) error {
 	cronv, err := NewCronv(line, self.TimeFrom, self.durationMinutes)
 	if err != nil {
-		return fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
+		switch err.(type) {
+		case *InvalidTaskError:
+			return nil // pass
+		default:
+			return fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
+		}
 	}
 	self.CronEntries = append(self.CronEntries, cronv)
 	return nil

@@ -1,3 +1,9 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+
 # crontab example entries from https://help.ubuntu.com/community/CronHowto
 01 04 1 1 1 /usr/bin/somedirectory/somecommand1
 01 04 * * * /usr/bin/somedirectory/somecommand2

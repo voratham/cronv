@@ -1,6 +1,9 @@
 package cronv
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type Schedule struct {
 	Minute     string
@@ -22,13 +25,26 @@ type Crontab struct {
 	Job      string
 }
 
+type InvalidTaskError struct {
+	Line string
+}
+
+func (e *InvalidTaskError) Error() string {
+	return fmt.Sprintf("Invalid task: '%s'", e.Line)
+}
+
 func ParseCrontab(line string) (*Crontab, error) {
-	// https://en.wikipedia.org/wiki/Cron#Predefined_scheduling_definitions
 	// TODO use regrex to parse (// https://gist.github.com/istvanp/310203)
+	parts := strings.Split(line, " ")
+	if len(parts) < 5 {
+		return nil, &InvalidTaskError{line}
+	}
+
+	// https://en.wikipedia.org/wiki/Cron#Predefined_scheduling_definitions
 	schedule := &Schedule{}
 	job := []string{}
 	c := 0
-	for _, v := range strings.Split(line, " ") {
+	for _, v := range parts {
 		if len(v) == 0 {
 			continue
 		}

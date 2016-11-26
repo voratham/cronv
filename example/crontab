@@ -9,9 +9,11 @@ HOME=/
 01 04 * * * /usr/bin/somedirectory/somecommand2
 01,31 04,05 1-15 1,6 * /usr/bin/somedirectory/somecommand3
 */5 * * * * /usr/bin/somedirectory/somecommand4
-*/10 * * * * /usr/bin/somedirectory/somecommand5
+*/18 * * * * /usr/bin/somedirectory/somecommand5
 0,10,20,30,40,50 * * * * /usr/bin/somedirectory/somecommand6
 00 01 * * * rusty /home/rusty/rusty-list-files.sh
 00 06 * * * env DISPLAY=:0 gui_appname
 45 04 * * * /usr/bin/updatedb
-*/1 * * * * /usr/bin/updatedb
+*/1 * * * * /usr/bin/updatedb2
+*/3 * * * * /usr/bin/updatedb3
+* * * * * date >> /tmp/aaa

@@ -36,10 +36,16 @@ const TEMPLATE = `
         dataTable.addColumn({ type: 'date', id: 'End' });
 
 				var tasks = {};
+				{{ $timeFrom := .TimeFrom }}
+				{{ $timeTo := .TimeTo }}
 				{{range $index, $cronv := .CronEntries}}
 					{{ $job := JSEscapeString $cronv.Crontab.Job }}
 					tasks['{{$job}}'] = [];
-					{{range CronvIter $cronv}}tasks['{{$job}}'].push(['{{$job}}', '', '{{DateFormat .Start "15:04"}} {{$job}}', {{NewJsDate .Start}}, {{NewJsDate .End}}]);{{end}}
+					{{if IsRunningEveryMinutes $cronv.Crontab }}
+						tasks['{{$job}}'].push(['{{$job}}', '', 'Every minutes {{$job}}', {{NewJsDate $timeFrom}}, {{NewJsDate $timeTo}}]);
+					{{else}}
+						{{range CronvIter $cronv}}tasks['{{$job}}'].push(['{{$job}}', '', '{{DateFormat .Start "15:04"}} {{$job}}', {{NewJsDate .Start}}, {{NewJsDate .End}}]);{{end}}
+					{{ end }}
 				{{end}}
 
 				var taskByJobCount = [];
@@ -86,6 +92,9 @@ func MakeTemplate() *template.Template {
 		},
 		"DateFormat": func(v time.Time, format string) string {
 			return v.Format(format)
+		},
+		"IsRunningEveryMinutes": func(c *Crontab) bool {
+			return c.IsRunningEveryMinutes()
 		},
 	}
 	return template.Must(template.New("").Funcs(funcMap).Parse(TEMPLATE))

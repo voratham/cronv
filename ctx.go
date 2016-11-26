@@ -59,6 +59,7 @@ func (self *Cronv) Iter() <-chan *Exec {
 type CronvCtx struct {
 	Opts            *Command
 	TimeFrom        time.Time
+	TimeTo          time.Time
 	CronEntries     []*Cronv
 	durationMinutes float64
 }
@@ -100,6 +101,7 @@ func NewCtx(opts *Command) (*CronvCtx, error) {
 	return &CronvCtx{
 		Opts:            opts,
 		TimeFrom:        timeFrom,
+		TimeTo:          timeFrom.Add(time.Duration(durationMinutes) * time.Minute),
 		CronEntries:     []*Cronv{},
 		durationMinutes: durationMinutes,
 	}, nil

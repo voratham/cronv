@@ -23,3 +23,19 @@ func TestParseCrontabInvalidTask(t *testing.T) {
 	_, err := ParseCrontab(line)
 	assert.NotNil(t, err)
 }
+
+func TestIsRunningEveryMinutesFalseCase(t *testing.T) {
+	c, _ := ParseCrontab("3 * * * *")
+	assert.False(t, c.IsRunningEveryMinutes())
+
+	c2, _ := ParseCrontab("* * * * 1")
+	assert.False(t, c2.IsRunningEveryMinutes())
+}
+
+func TestIsRunningEveryMinutesTrueCase(t *testing.T) {
+	c, _ := ParseCrontab("* * * * *")
+	assert.True(t, c.IsRunningEveryMinutes())
+
+	c2, _ := ParseCrontab("*/1 * * * *")
+	assert.True(t, c2.IsRunningEveryMinutes())
+}

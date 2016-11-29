@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorhill/cronexpr"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -59,26 +60,9 @@ func (self *Cronv) Iter() <-chan *Exec {
 type CronvCtx struct {
 	Opts            *Command
 	TimeFrom        time.Time
+	TimeTo          time.Time
 	CronEntries     []*Cronv
 	durationMinutes float64
-}
-
-func (self *CronvCtx) AppendNewLine(line string) error {
-	cronv, err := NewCronv(line, self.TimeFrom, self.durationMinutes)
-	if err != nil {
-		return fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
-	}
-	self.CronEntries = append(self.CronEntries, cronv)
-	return nil
-}
-
-func (self *CronvCtx) Dump() (string, error) {
-	output, err := os.Create(self.Opts.OutputFilePath)
-	if err != nil {
-		return "", err
-	}
-	MakeTemplate().Execute(output, self)
-	return self.Opts.OutputFilePath, nil
 }
 
 func NewCtx(opts *Command) (*CronvCtx, error) {
@@ -95,7 +79,35 @@ func NewCtx(opts *Command) (*CronvCtx, error) {
 	return &CronvCtx{
 		Opts:            opts,
 		TimeFrom:        timeFrom,
+		TimeTo:          timeFrom.Add(time.Duration(durationMinutes) * time.Minute),
 		CronEntries:     []*Cronv{},
 		durationMinutes: durationMinutes,
 	}, nil
+}
+
+func (self *CronvCtx) AppendNewLine(line string) (bool, error) {
+	trimed := strings.TrimSpace(line)
+	if len(trimed) == 0 || string(trimed[0]) == "#" {
+		return false, nil
+	}
+	cronv, err := NewCronv(trimed, self.TimeFrom, self.durationMinutes)
+	if err != nil {
+		switch err.(type) {
+		case *InvalidTaskError:
+			return false, nil // pass
+		default:
+			return false, fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
+		}
+	}
+	self.CronEntries = append(self.CronEntries, cronv)
+	return true, nil
+}
+
+func (self *CronvCtx) Dump() (string, error) {
+	output, err := os.Create(self.Opts.OutputFilePath)
+	if err != nil {
+		return "", err
+	}
+	MakeTemplate().Execute(output, self)
+	return self.Opts.OutputFilePath, nil
 }

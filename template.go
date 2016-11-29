@@ -2,6 +2,7 @@ package cronv
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -14,8 +15,9 @@ const TEMPLATE = `
 </head>
 <body>
   <div class="container-fluid">
-    <h1>{{.Opts.Title}}</h1>
-    <p>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</p>
+    <h1>
+			{{.Opts.Title}}&nbsp;<small>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
+		</h1>
     <div id="cronv-timeline" style="height:100%; width:100%;">
       <b>Loading...</b>
     </div>
@@ -32,20 +34,39 @@ const TEMPLATE = `
         dataTable.addColumn({ type: 'string', role: 'tooltip' });
         dataTable.addColumn({ type: 'date', id: 'Start' });
         dataTable.addColumn({ type: 'date', id: 'End' });
-        var rows = [
-          {{range $index, $cronv := .CronEntries}}
-            {{range CronvIter $cronv}}
-              {{ $job := JSEscapeString $cronv.Crontab.Job }}
-              {{ $startFormatted := DateFormat .Start "15:04" }}
-              ['{{$job}}', '', '{{$startFormatted}} {{$job}}', {{NewJsDate .Start}}, {{NewJsDate .End}}],
-            {{end}}
-          {{end}}
-        ];
+
+				var tasks = {};
+				{{ $timeFrom := .TimeFrom }}
+				{{ $timeTo := .TimeTo }}
+				{{range $index, $cronv := .CronEntries}}
+					{{ $job := JSEscapeString $cronv.Crontab.Job }}
+					tasks['{{$job}}'] = [];
+					{{if IsRunningEveryMinutes $cronv.Crontab }}
+						tasks['{{$job}}'].push(['{{$job}}', '', 'Every minutes {{$job}}', {{NewJsDate $timeFrom}}, {{NewJsDate $timeTo}}]);
+					{{else}}
+						{{range CronvIter $cronv}}tasks['{{$job}}'].push(['{{$job}}', '', '{{DateFormat .Start "15:04"}} {{$job}}', {{NewJsDate .Start}}, {{NewJsDate .End}}]);{{end}}
+					{{ end }}
+				{{end}}
+
+				var taskByJobCount = [];
+				for (var k in tasks) taskByJobCount.push({name: k, size: tasks[k].length});
+				taskByJobCount.sort(function(a, b) {
+					if (a.size == b.size) return 0;
+					return a.size > b.size ? -1 : 1;
+				});
+
+				var rows = [];
+				for (var i = 0; i < taskByJobCount.length; i++) {
+					jobs = tasks[taskByJobCount[i].name];
+					var jl = jobs.length;
+					for (var j = 0; j < jl; j++) rows.push(jobs[j]);
+				}
+
         if (rows.length > 0) {
           dataTable.addRows(rows);
           chart.draw(dataTable, {
             timeline: {
-              colorByRowLabel: true,
+              colorByRowLabel: true
             },
             avoidOverlappingGridLines: false
           });
@@ -64,13 +85,16 @@ func MakeTemplate() *template.Template {
 			return cronv.Iter()
 		},
 		"JSEscapeString": func(v string) string {
-			return template.JSEscapeString(v)
+			return template.JSEscapeString(strings.TrimSpace(v))
 		},
 		"NewJsDate": func(v time.Time) string {
 			return fmt.Sprintf("new Date(%d,%d,%d,%d,%d)", v.Year(), v.Month(), v.Day(), v.Hour(), v.Minute())
 		},
 		"DateFormat": func(v time.Time, format string) string {
 			return v.Format(format)
+		},
+		"IsRunningEveryMinutes": func(c *Crontab) bool {
+			return c.IsRunningEveryMinutes()
 		},
 	}
 	return template.Must(template.New("").Funcs(funcMap).Parse(TEMPLATE))

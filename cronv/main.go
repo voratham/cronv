@@ -19,7 +19,7 @@ func main() {
 	parser := flags.NewParser(opts, flags.Default)
 	parser.Name = fmt.Sprintf("%s v%s", NAME, VERSION)
 	if _, err := parser.Parse(); err != nil {
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	ctx, err := cronv.NewCtx(opts)
@@ -29,11 +29,8 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) > 0 && string(line[0]) != "#" {
-			if err := ctx.AppendNewLine(line); err != nil {
-				panic(err)
-			}
+		if _, err := ctx.AppendNewLine(scanner.Text()); err != nil {
+			panic(err)
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -45,5 +42,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%s: '%s' generated successfully.\n", opts.Title, path)
+	fmt.Printf("[%s] %d tasks.\n", opts.Title, len(ctx.CronEntries))
+	fmt.Printf("[%s] '%s' generated.\n", opts.Title, path)
 }

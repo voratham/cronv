@@ -29,11 +29,8 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) > 0 && string(line[0]) != "#" {
-			if err := ctx.AppendNewLine(line); err != nil {
-				panic(err)
-			}
+		if _, err := ctx.AppendNewLine(scanner.Text()); err != nil {
+			panic(err)
 		}
 	}
 	if err := scanner.Err(); err != nil {

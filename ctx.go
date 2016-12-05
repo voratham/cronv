@@ -2,7 +2,7 @@ package cronv
 
 import (
 	"fmt"
-	"github.com/gorhill/cronexpr"
+	"github.com/tkmgo/cronexpr"
 	"os"
 	"strings"
 	"time"

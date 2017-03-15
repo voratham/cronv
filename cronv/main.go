@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	VERSION = "0.2.4"
-	NAME    = "Cronv"
+	version = "0.2.4"
+	name    = "Cronv"
 )
 
 func main() {
 	opts := cronv.NewCronvCommand()
 
 	parser := flags.NewParser(opts, flags.Default)
-	parser.Name = fmt.Sprintf("%s v%s", NAME, VERSION)
+	parser.Name = fmt.Sprintf("%s v%s", name, version)
 	if _, err := parser.Parse(); err != nil {
 		os.Exit(0)
 	}

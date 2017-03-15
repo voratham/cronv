@@ -18,7 +18,7 @@ const TEMPLATE = `
     <h1>
 			{{.Opts.Title}}&nbsp;<small>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
 		</h1>
-    <div id="cronv-timeline" style="height:100%; width:100%;">
+    <div id="cronv-timeline" style="height:100%; width:{{.Opts.Width}}%;">
       <b>Loading...</b>
     </div>
   </div>

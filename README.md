@@ -47,12 +47,21 @@ You can see the basically crontab specofication in [https://en.wikipedia.org/wik
 
 ## Options
 
-- -d, -duration=1h : Duration to visualize, in %d{d,h,m} style, '6h' is used by default.
-- -o, -output=./my_cron_schedule.html : Path to html file for output, './crontab.html' is used by default.
-- -from-date=2016-11-08 : Start date in the format '2006/01/02' to visualize, current date is used by default.
-- -from-time=01:30 : Start time in the format '15:04' to visualize, current time is used by default.
-- -t, -title=mycrontab : Title/label in output html file.
-- -h, -help : Show help message.
+```shell
+Application Options:
+  -o, --output=    path to .html file to output (default: ./crontab.html)
+  -d, --duration=  duration to visualize in N{suffix} style. e.g.)
+                   1d(day)/1h(hour)/1m(minute) (default: 6h)
+      --from-date= start date in the format '2006/01/02' to visualize (default:
+                   2017/03/15)
+      --from-time= start time in the format '15:04' to visualize (default:
+                   19:28)
+  -t, --title=     title/label of output (default: cron tasks)
+  -w, --width=     Table width of output (default: 100)
+
+Help Options:
+  -h, --help       Show this help message
+```
 
 ## Examples
 Analyze crontab for 6 hours (by default) from now, , output html file to default path:
@@ -88,6 +97,14 @@ With original title/label:
 
 ```shell
 $ crontab -l | cronv -d 1d -t "crontab@`hostname`"  # title/label of html file will be 'crontab@myhost'
+```
+
+With *width* to spread output table:
+
+```shell
+$ crontab -l | cronv -o path/to/output2.html -w 180 # table width be 180% of the screen width (100% by default)
+
+$ crontab -l | cronv -o path/to/output2.html -w 75 # be 75% of the screen width
 ```
 
 

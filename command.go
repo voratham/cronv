@@ -14,6 +14,7 @@ const (
 	optDefaultDuration   = "6h"
 	optDefaultOutputPath = "./crontab.html"
 	optDefaultTitle      = "cron tasks"
+	optDefaultWidth      = 100
 )
 
 type Command struct {
@@ -22,6 +23,7 @@ type Command struct {
 	FromDate       string `long:"from-date" description:"start date in the format '2006/01/02' to visualize"`
 	FromTime       string `long:"from-time" description:"start time in the format '15:04' to visualize"`
 	Title          string `short:"t" long:"title" description:"title/label of output"`
+	Width          int    `short:"w" long:"width" description:"Table width of output"`
 }
 
 func (self *Command) ToFromTime() (time.Time, error) {
@@ -62,5 +64,6 @@ func NewCronvCommand() *Command {
 		FromDate:       now.Format(optDateFormat),
 		FromTime:       now.Format(optTimeFormat),
 		Title:          optDefaultTitle,
+		Width:          optDefaultWidth,
 	}
 }

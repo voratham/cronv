@@ -108,6 +108,17 @@ $ crontab -l | cronv -o path/to/output2.html -w 75 # be 75% of the screen width
 ```
 
 
+## Development
+
+Using **dep**.
+
+```shell
+$ cd /path/to/cronv
+$ dep ensure
+$ crontab -l | go run cronv/main.go
+```
+
+
 ## TODO
 
 - Add output format/style other than HTML.

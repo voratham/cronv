@@ -10,8 +10,8 @@ func TestNewCronvCommandDefaultParameters(t *testing.T) {
 	assert.NotNil(t, cmd)
 	assert.NotNil(t, cmd.FromDate)
 	assert.NotNil(t, cmd.FromTime)
-	assert.Equal(t, cmd.OutputFilePath, opt_default_output_path, "")
-	assert.Equal(t, cmd.Duration, opt_default_duration, "")
+	assert.Equal(t, cmd.OutputFilePath, optDefaultOutputPath, "")
+	assert.Equal(t, cmd.Duration, optDefaultDuration, "")
 }
 
 func TestToDurationMinutesValid(t *testing.T) {

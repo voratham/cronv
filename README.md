@@ -1,6 +1,6 @@
 # cronv
 
-===================
+[![CircleCI](https://circleci.com/gh/takumakanari/cronv.svg?style=svg)](https://circleci.com/gh/takumakanari/cronv)=
 
 
 ## Description

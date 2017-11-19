@@ -28,7 +28,7 @@
 [[projects]]
   name = "github.com/tkmgo/cronexpr"
   packages = ["."]
-  revision = "a557574d6c024ed6e36acc8b610f5f211c91568a"
+  revision = "5304e65bfa55976ee805615e368249944bcf7ea1"
   version = "1.0.0"
 
 [solve-meta]

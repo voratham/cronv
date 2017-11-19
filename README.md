@@ -1,9 +1,7 @@
 # cronv
 
-[![CircleCI](https://circleci.com/gh/takumakanari/cronv.svg?style=svg)](https://circleci.com/gh/takumakanari/cronv)=
+[![CircleCI](https://circleci.com/gh/takumakanari/cronv.svg?style=svg)](https://circleci.com/gh/takumakanari/cronv)
 
-
-## Description
 Visualize your cron schedules in crontab
 
 ![cronv output 1d](https://raw.github.com/wiki/takumakanari/cronv/images/outputs/cronv-1d.png)

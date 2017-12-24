@@ -26,12 +26,12 @@ type Command struct {
 	Width          int    `short:"w" long:"width" description:"Table width of output"`
 }
 
-func (self *Command) ToFromTime() (time.Time, error) {
+func (self *Command) toFromTime() (time.Time, error) {
 	return time.Parse(fmt.Sprintf("%s %s", optDateFormat, optTimeFormat),
 		fmt.Sprintf("%s %s", self.FromDate, self.FromTime))
 }
 
-func (self *Command) ToDurationMinutes() (float64, error) {
+func (self *Command) toDurationMinutes() (float64, error) {
 	length := len(self.Duration)
 	if length < 2 {
 		return 0, errors.New(fmt.Sprintf("Invalid duration format: '%s'", self.Duration))

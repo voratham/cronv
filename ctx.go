@@ -16,12 +16,12 @@ type Cronv struct {
 }
 
 func NewCronv(line string, startTime time.Time, durationMinutes float64) (*Cronv, error) {
-	crontab, err := ParseCrontab(line)
+	crontab, err := parseCrontab(line)
 	if err != nil {
 		return nil, err
 	}
 
-	expr, err := cronexpr.Parse(crontab.Schedule.ToCrontab())
+	expr, err := cronexpr.Parse(crontab.Schedule.toCrontab())
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ type Exec struct {
 	End   time.Time
 }
 
-func (self *Cronv) Iter() <-chan *Exec {
+func (self *Cronv) iter() <-chan *Exec {
 	ch := make(chan *Exec)
 	eneTime := self.startTime.Add(time.Duration(self.durationMinutes) * time.Minute)
 	next := self.expr.Next(self.startTime)
@@ -66,12 +66,12 @@ type CronvCtx struct {
 }
 
 func NewCtx(opts *Command) (*CronvCtx, error) {
-	timeFrom, err := opts.ToFromTime()
+	timeFrom, err := opts.toFromTime()
 	if err != nil {
 		return nil, err
 	}
 
-	durationMinutes, err := opts.ToDurationMinutes()
+	durationMinutes, err := opts.toDurationMinutes()
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +108,6 @@ func (self *CronvCtx) Dump() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	MakeTemplate().Execute(output, self)
+	makeTemplate().Execute(output, self)
 	return self.Opts.OutputFilePath, nil
 }

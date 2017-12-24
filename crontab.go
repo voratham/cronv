@@ -14,7 +14,7 @@ type Schedule struct {
 	Year       string
 }
 
-func (self *Schedule) ToCrontab() string {
+func (self *Schedule) toCrontab() string {
 	dest := strings.Join([]string{self.Minute, self.Hour, self.DayOfMonth,
 		self.Month, self.DayOfWeek, self.Year}, " ")
 	return strings.Trim(dest, " ")
@@ -26,8 +26,8 @@ type Crontab struct {
 	Job      string
 }
 
-func (c *Crontab) IsRunningEveryMinutes() bool {
-	for i, v := range strings.Split(c.Schedule.ToCrontab(), " ") {
+func (c *Crontab) isRunningEveryMinutes() bool {
+	for i, v := range strings.Split(c.Schedule.toCrontab(), " ") {
 		if v != "*" && (i > 0 || v != "*/1") {
 			return false
 		}
@@ -43,7 +43,7 @@ func (e *InvalidTaskError) Error() string {
 	return fmt.Sprintf("Invalid task: '%s'", e.Line)
 }
 
-func ParseCrontab(line string) (*Crontab, error) {
+func parseCrontab(line string) (*Crontab, error) {
 	// TODO use regrex to parse: https://gist.github.com/istvanp/310203
 	parts := strings.Split(line, " ")
 	if len(parts) < 5 {

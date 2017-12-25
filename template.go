@@ -79,10 +79,10 @@ const TEMPLATE = `
 </html>
 `
 
-func MakeTemplate() *template.Template {
+func makeTemplate() *template.Template {
 	funcMap := template.FuncMap{
 		"CronvIter": func(cronv *Cronv) <-chan *Exec {
-			return cronv.Iter()
+			return cronv.iter()
 		},
 		"JSEscapeString": func(v string) string {
 			return template.JSEscapeString(strings.TrimSpace(v))
@@ -94,7 +94,7 @@ func MakeTemplate() *template.Template {
 			return v.Format(format)
 		},
 		"IsRunningEveryMinutes": func(c *Crontab) bool {
-			return c.IsRunningEveryMinutes()
+			return c.isRunningEveryMinutes()
 		},
 	}
 	return template.Must(template.New("").Funcs(funcMap).Parse(TEMPLATE))

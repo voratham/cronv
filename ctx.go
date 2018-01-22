@@ -80,7 +80,6 @@ func NewCtx(opts *Command) (*CronvCtx, error) {
 		Opts:            opts,
 		TimeFrom:        timeFrom,
 		TimeTo:          timeFrom.Add(time.Duration(durationMinutes) * time.Minute),
-		CronEntries:     []*Cronv{},
 		durationMinutes: durationMinutes,
 	}, nil
 }

@@ -15,15 +15,20 @@ type Cronv struct {
 	durationMinutes float64
 }
 
-func NewCronv(line string, startTime time.Time, durationMinutes float64) (*Cronv, error) {
-	crontab, err := parseCrontab(line)
+func NewCronv(line string, startTime time.Time, durationMinutes float64) (*Cronv, *Extra, error) {
+	crontab, extra, err := parseCrontab(line)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	// Maybe the line was extra (@reboot, ENV etc ...)
+	if crontab == nil {
+		return nil, extra, nil
 	}
 
 	expr, err := cronexpr.Parse(crontab.Schedule.toCrontab())
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	cronv := &Cronv{
@@ -32,7 +37,8 @@ func NewCronv(line string, startTime time.Time, durationMinutes float64) (*Cronv
 		startTime:       startTime,
 		durationMinutes: durationMinutes,
 	}
-	return cronv, nil
+
+	return cronv, extra, nil
 }
 
 type Exec struct {
@@ -62,6 +68,7 @@ type CronvCtx struct {
 	TimeFrom        time.Time
 	TimeTo          time.Time
 	CronEntries     []*Cronv
+	Extras          []*Extra
 	durationMinutes float64
 }
 
@@ -89,7 +96,8 @@ func (self *CronvCtx) AppendNewLine(line string) (bool, error) {
 	if len(trimed) == 0 || string(trimed[0]) == "#" {
 		return false, nil
 	}
-	cronv, err := NewCronv(trimed, self.TimeFrom, self.durationMinutes)
+
+	cronv, extra, err := NewCronv(trimed, self.TimeFrom, self.durationMinutes)
 	if err != nil {
 		switch err.(type) {
 		case *InvalidTaskError:
@@ -98,7 +106,14 @@ func (self *CronvCtx) AppendNewLine(line string) (bool, error) {
 			return false, fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
 		}
 	}
-	self.CronEntries = append(self.CronEntries, cronv)
+
+	if cronv != nil {
+		self.CronEntries = append(self.CronEntries, cronv)
+	}
+	if extra != nil {
+		self.Extras = append(self.Extras, extra)
+	}
+
 	return true, nil
 }
 

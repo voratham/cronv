@@ -11,21 +11,23 @@ const TEMPLATE = `
 <html>
 <head>
 <title>{{.Opts.Title}} | {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 <body>
   <div class="container-fluid">
     <h1>
-			{{.Opts.Title}}&nbsp;<small>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
+			{{.Opts.Title}}&nbsp;<small class="text-muted">From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
 		</h1>
+
+    <br>
 
     {{if .Extras}}
       <h3>Extra</h3>
       <div id="cronv-extra" style="width:{{.Opts.Width}}%;">
-        <dl class="dl-horizontal">
+        <dl class="row">
           {{range $index, $extra := .Extras}}
-            <dt>{{$extra.Label}}</dt>
-            <dd>{{$extra.Job}}</dd>
+            <dt class="col-sm-1">{{$extra.Label}}</dt>
+            <dd class="col-sm-11">{{$extra.Job}}</dd>
           {{end}}
         </dl>
       </div>

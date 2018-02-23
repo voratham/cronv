@@ -20,6 +20,12 @@ func (self *Schedule) toCrontab() string {
 	return strings.Trim(dest, " ")
 }
 
+type Extra struct {
+	Line  string
+	Label string
+	Job   string
+}
+
 type Crontab struct {
 	Line     string
 	Schedule *Schedule
@@ -43,11 +49,22 @@ func (e *InvalidTaskError) Error() string {
 	return fmt.Sprintf("Invalid task: '%s'", e.Line)
 }
 
-func parseCrontab(line string) (*Crontab, error) {
+func parseCrontab(line string) (*Crontab, *Extra, error) {
 	// TODO use regrex to parse: https://gist.github.com/istvanp/310203
 	parts := strings.Split(line, " ")
+
+	// @reboot /something/to/do
+	if parts[0] == "@reboot" {
+		extra := &Extra{
+			Line:  line,
+			Label: parts[0],
+			Job:   strings.Join(parts[1:], " "),
+		}
+		return nil, extra, nil
+	}
+
 	if len(parts) < 5 {
-		return nil, &InvalidTaskError{line}
+		return nil, nil, &InvalidTaskError{line}
 	}
 
 	// https://en.wikipedia.org/wiki/Cron#Predefined_scheduling_definitions
@@ -79,5 +96,5 @@ func parseCrontab(line string) (*Crontab, error) {
 		Schedule: schedule,
 		Job:      strings.Join(job, " "),
 	}
-	return crontab, nil
+	return crontab, nil, nil
 }

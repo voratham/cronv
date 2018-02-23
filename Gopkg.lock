@@ -22,14 +22,14 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [[projects]]
   name = "github.com/tkmgo/cronexpr"
   packages = ["."]
   revision = "5304e65bfa55976ee805615e368249944bcf7ea1"
-  version = "1.0.0"
+  version = "1.1.0"
 
 [solve-meta]
   analyzer-name = "dep"

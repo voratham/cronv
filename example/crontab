@@ -17,3 +17,5 @@ HOME=/
 */1 * * * * /usr/bin/updatedb2
 */3 * * * * /usr/bin/updatedb3
 * * * * * date >> /tmp/aaa
+@reboot root /usr/bin/rebooted arg1 arg2
+@reboot root /usr/bin/rebooted --arg1=val2

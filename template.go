@@ -18,6 +18,21 @@ const TEMPLATE = `
     <h1>
 			{{.Opts.Title}}&nbsp;<small>From {{DateFormat .TimeFrom "2006/1/2 15:04"}}, +{{.Opts.Duration}}</small>
 		</h1>
+
+    {{if .Extras}}
+      <h3>Extra</h3>
+      <div id="cronv-extra" style="width:{{.Opts.Width}}%;">
+        <dl class="dl-horizontal">
+          {{range $index, $extra := .Extras}}
+            <dt>{{$extra.Label}}</dt>
+            <dd>{{$extra.Job}}</dd>
+          {{end}}
+        </dl>
+      </div>
+      <hr>
+    {{end}}
+
+    <h3>Timeline<h3>
     <div id="cronv-timeline" style="height:100%; width:{{.Opts.Width}}%;">
       <b>Loading...</b>
     </div>

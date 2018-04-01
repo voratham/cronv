@@ -19,3 +19,4 @@ HOME=/
 * * * * * date >> /tmp/aaa
 @reboot root /usr/bin/rebooted arg1 arg2
 @reboot root /usr/bin/rebooted --arg1=val2
+@hourly /usr/bin/somedirectory/some-hourly-command arg1 arg2

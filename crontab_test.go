@@ -40,6 +40,14 @@ func TestIsRunningEveryMinutesTrueCase(t *testing.T) {
 	assert.True(t, c2.isRunningEveryMinutes())
 }
 
+func TestAlias(t *testing.T) {
+	line := "@hourly /path/to/do/something arg1"
+	c, _, err := parseCrontab(line)
+	assert.Nil(t, err)
+	assert.Equal(t, c.Schedule.Alias, "@hourly")
+	assert.Equal(t, c.Job, "/path/to/do/something arg1")
+}
+
 func TestExtra(t *testing.T) {
 	line := "@reboot root /path/to/do/something arg1 arg2 arg3"
 	c, e, _ := parseCrontab(line)

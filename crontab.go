@@ -12,9 +12,13 @@ type Schedule struct {
 	Month      string
 	DayOfWeek  string
 	Year       string
+	Alias      string
 }
 
 func (self *Schedule) toCrontab() string {
+	if self.Alias != "" {
+		return self.Alias
+	}
 	dest := strings.Join([]string{self.Minute, self.Hour, self.DayOfMonth,
 		self.Month, self.DayOfWeek, self.Year}, " ")
 	return strings.Trim(dest, " ")
@@ -53,48 +57,60 @@ func parseCrontab(line string) (*Crontab, *Extra, error) {
 	// TODO use regrex to parse: https://gist.github.com/istvanp/310203
 	parts := strings.Split(line, " ")
 
-	// @reboot /something/to/do
-	if parts[0] == "@reboot" {
-		extra := &Extra{
-			Line:  line,
-			Label: parts[0],
-			Job:   strings.Join(parts[1:], " "),
-		}
-		return nil, extra, nil
-	}
-
-	if len(parts) < 5 {
-		return nil, nil, &InvalidTaskError{line}
-	}
-
-	// https://en.wikipedia.org/wiki/Cron#Predefined_scheduling_definitions
 	schedule := &Schedule{}
 	job := []string{}
-	c := 0
-	for _, v := range parts {
-		if len(v) == 0 {
-			continue
+
+	if strings.HasPrefix(parts[0], "@") {
+		if len(parts) < 2 {
+			return nil, nil, &InvalidTaskError{line}
 		}
-		switch c {
-		case 0:
-			schedule.Minute = v
-		case 1:
-			schedule.Hour = v
-		case 2:
-			schedule.DayOfMonth = v
-		case 3:
-			schedule.Month = v
-		case 4:
-			schedule.DayOfWeek = v
-		default:
-			job = append(job, v)
+
+		// @reboot /something/to/do
+		if parts[0] == "@reboot" {
+			extra := &Extra{
+				Line:  line,
+				Label: parts[0],
+				Job:   strings.Join(parts[1:], " "),
+			}
+			return nil, extra, nil
 		}
-		c++
+
+		schedule.Alias = parts[0]
+		job = parts[1:]
+	} else {
+		if len(parts) < 5 {
+			return nil, nil, &InvalidTaskError{line}
+		}
+
+		// https://en.wikipedia.org/wiki/Cron#Predefined_scheduling_definitions
+		c := 0
+		for _, v := range parts {
+			if len(v) == 0 {
+				continue
+			}
+			switch c {
+			case 0:
+				schedule.Minute = v
+			case 1:
+				schedule.Hour = v
+			case 2:
+				schedule.DayOfMonth = v
+			case 3:
+				schedule.Month = v
+			case 4:
+				schedule.DayOfWeek = v
+			default:
+				job = append(job, v)
+			}
+			c++
+		}
 	}
+
 	crontab := &Crontab{
 		Line:     line,
 		Schedule: schedule,
 		Job:      strings.Join(job, " "),
 	}
+
 	return crontab, nil, nil
 }

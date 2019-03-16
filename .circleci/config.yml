@@ -30,4 +30,4 @@ jobs:
       - run: mkdir -p /go/src/github.com/takumakanari/cronv/cmd
       - run: go build -o cmd/cronv cronv/main.go
       - store_artifacts:
-          path: cmd/cron
+          path: cmd/cronv

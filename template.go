@@ -57,7 +57,7 @@ const TEMPLATE = `
 				{{ $timeTo := .TimeTo }}
 				{{range $index, $cronv := .CronEntries}}
 					{{ $job := JSEscapeString $cronv.Crontab.Job }}
-					tasks['{{$job}}'] = [];
+					tasks['{{$job}}'] = tasks['{{$job}}'] || [];
 					{{if IsRunningEveryMinutes $cronv.Crontab }}
 						tasks['{{$job}}'].push(['{{$job}}', '', 'Every minutes {{$job}}', {{NewJsDate $timeFrom}}, {{NewJsDate $timeTo}}]);
 					{{else}}

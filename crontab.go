@@ -55,7 +55,7 @@ func (e *InvalidTaskError) Error() string {
 
 func parseCrontab(line string) (*Crontab, *Extra, error) {
 	// TODO use regrex to parse: https://gist.github.com/istvanp/310203
-	parts := strings.Split(line, " ")
+	parts := strings.Fields(line)
 
 	schedule := &Schedule{}
 	job := []string{}

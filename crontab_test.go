@@ -6,7 +6,7 @@ import (
 )
 
 func TestParseCrontab(t *testing.T) {
-	line := "01 04 1 2 3 /usr/bin/somedirectory/somecommand1"
+	line := "01 04 1 2 3	/usr/bin/somedirectory/somecommand1"
 	r, _, _ := parseCrontab(line)
 	assert.NotNil(t, r)
 	assert.Equal(t, r.Line, line)

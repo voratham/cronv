@@ -90,7 +90,22 @@ const TEMPLATE = `
         } else {
           container.innerHTML = '<div class="alert alert-success"><strong>Woops!</strong> There is no data!</div>';
         }
+
+        var mousePosX = undefined,
+            mousePosY = undefined;
+
+        google.visualization.events.addListener(chart, 'onmouseover', function(e) {
+          var t = document.getElementsByClassName("google-visualization-tooltip")[0];
+          if (mousePosX) t.style.left = mousePosX + 'px';
+          if (mousePosY) t.style.top = mousePosY - 120 + 'px';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+          mousePosX = e.pageX;
+          mousePosY = e.pageY;
+        });
      });
+
   </script>
 </body>
 </html>

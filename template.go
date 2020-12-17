@@ -34,7 +34,7 @@ const TEMPLATE = `
       <hr>
     {{end}}
 
-    <h3>Timeline<h3>
+    <h3>Timeline</h3>
     <div id="cronv-timeline" style="height:100%; width:{{.Opts.Width}}%;">
       <b>Loading...</b>
     </div>

@@ -1,6 +1,7 @@
 package cronv
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
@@ -15,12 +16,11 @@ type Schedule struct {
 	Alias      string
 }
 
-func (self *Schedule) toCrontab() string {
-	if self.Alias != "" {
-		return self.Alias
+func (s *Schedule) toCrontab() string {
+	if s.Alias != "" {
+		return s.Alias
 	}
-	dest := strings.Join([]string{self.Minute, self.Hour, self.DayOfMonth,
-		self.Month, self.DayOfWeek, self.Year}, " ")
+	dest := strings.Join([]string{s.Minute, s.Hour, s.DayOfMonth, s.Month, s.DayOfWeek, s.Year}, " ")
 	return strings.Trim(dest, " ")
 }
 
@@ -50,10 +50,10 @@ type InvalidTaskError struct {
 }
 
 func (e *InvalidTaskError) Error() string {
-	return fmt.Sprintf("Invalid task: '%s'", e.Line)
+	return fmt.Sprintf("invalid task: '%s'", e.Line)
 }
 
-func parseCrontab(line string) (*Crontab, *Extra, error) {
+func parse(ctx context.Context, line string) (*Crontab, *Extra, error) {
 	// TODO use regrex to parse: https://gist.github.com/istvanp/310203
 	parts := strings.Fields(line)
 

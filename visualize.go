@@ -1,6 +1,7 @@
 package cronv
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -16,8 +17,8 @@ type Record struct {
 	durationMinutes float64
 }
 
-func NewRecord(line string, startTime time.Time, durationMinutes float64) (*Record, *Extra, error) {
-	crontab, extra, err := parseCrontab(line)
+func newRecord(ctx context.Context, line string, startTime time.Time, durationMinutes float64) (*Record, *Extra, error) {
+	crontab, extra, err := parse(ctx, line)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -45,17 +46,17 @@ type Exec struct {
 	End   time.Time
 }
 
-func (self *Record) iter() <-chan *Exec {
+func (r *Record) iter() <-chan *Exec {
 	ch := make(chan *Exec)
-	eneTime := self.startTime.Add(time.Duration(self.durationMinutes) * time.Minute)
-	next := self.expr.Next(self.startTime)
+	eneTime := r.startTime.Add(time.Duration(r.durationMinutes) * time.Minute)
+	next := r.expr.Next(r.startTime)
 	go func() {
 		for next.Equal(eneTime) || eneTime.After(next) {
 			ch <- &Exec{
 				Start: next,
 				End:   next.Add(time.Duration(1) * time.Minute),
 			}
-			next = self.expr.Next(next)
+			next = r.expr.Next(next)
 		}
 		close(ch)
 	}()
@@ -90,19 +91,19 @@ func NewVisualizer(opts *Command) (*Visualizer, error) {
 	}, nil
 }
 
-func (v *Visualizer) AppendNewLine(line string) (bool, error) {
+func (v *Visualizer) Add(ctx context.Context, line string) (bool, error) {
 	trimed := strings.TrimSpace(line)
 	if len(trimed) == 0 || string(trimed[0]) == "#" {
 		return false, nil
 	}
 
-	record, extra, err := NewRecord(trimed, v.TimeFrom, v.durationMinutes)
+	record, extra, err := newRecord(ctx, trimed, v.TimeFrom, v.durationMinutes)
 	if err != nil {
 		switch err.(type) {
 		case *InvalidTaskError:
 			return false, nil // pass
 		default:
-			return false, fmt.Errorf("Failed to analyze cron '%s': %s", line, err)
+			return false, fmt.Errorf("failed to analyze cron '%s': %s", line, err)
 		}
 	}
 
@@ -117,7 +118,7 @@ func (v *Visualizer) AppendNewLine(line string) (bool, error) {
 	return true, nil
 }
 
-func (v *Visualizer) Dump() (string, error) {
+func (v *Visualizer) Dump(ctx context.Context) (string, error) {
 	output, err := os.Create(v.Opts.OutputFilePath)
 	if err != nil {
 		return "", err

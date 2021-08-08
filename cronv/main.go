@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 
@@ -24,26 +25,28 @@ func main() {
 		os.Exit(0)
 	}
 
-	ctx, err := cronv.NewVisualizer(opts)
+	ctx := context.Background()
+	viz, err := cronv.NewVisualizer(opts)
 	if err != nil {
 		panic(err)
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		if _, err := ctx.AppendNewLine(scanner.Text()); err != nil {
+		if _, err := viz.Add(ctx, scanner.Text()); err != nil {
 			panic(err)
 		}
 	}
+
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
 
-	path, err := ctx.Dump()
+	path, err := viz.Dump(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("[%s] %d tasks.\n", opts.Title, len(ctx.CronEntries))
+	fmt.Printf("[%s] %d tasks.\n", opts.Title, len(viz.CronEntries))
 	fmt.Printf("[%s] '%s' generated.\n", opts.Title, path)
 }

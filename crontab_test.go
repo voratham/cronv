@@ -1,8 +1,9 @@
 package cronv
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseCrontab(t *testing.T) {

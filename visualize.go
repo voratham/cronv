@@ -2,20 +2,21 @@ package cronv
 
 import (
 	"fmt"
-	"github.com/tkmgo/cronexpr"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/tkmgo/cronexpr"
 )
 
-type Cronv struct {
+type Record struct {
 	Crontab         *Crontab
 	expr            *cronexpr.Expression
 	startTime       time.Time
 	durationMinutes float64
 }
 
-func NewCronv(line string, startTime time.Time, durationMinutes float64) (*Cronv, *Extra, error) {
+func NewRecord(line string, startTime time.Time, durationMinutes float64) (*Record, *Extra, error) {
 	crontab, extra, err := parseCrontab(line)
 	if err != nil {
 		return nil, nil, err
@@ -31,14 +32,12 @@ func NewCronv(line string, startTime time.Time, durationMinutes float64) (*Cronv
 		return nil, nil, err
 	}
 
-	cronv := &Cronv{
+	return &Record{
 		Crontab:         crontab,
 		expr:            expr,
 		startTime:       startTime,
 		durationMinutes: durationMinutes,
-	}
-
-	return cronv, extra, nil
+	}, extra, nil
 }
 
 type Exec struct {
@@ -46,7 +45,7 @@ type Exec struct {
 	End   time.Time
 }
 
-func (self *Cronv) iter() <-chan *Exec {
+func (self *Record) iter() <-chan *Exec {
 	ch := make(chan *Exec)
 	eneTime := self.startTime.Add(time.Duration(self.durationMinutes) * time.Minute)
 	next := self.expr.Next(self.startTime)
@@ -63,16 +62,16 @@ func (self *Cronv) iter() <-chan *Exec {
 	return ch
 }
 
-type CronvCtx struct {
+type Visualizer struct {
 	Opts            *Command
 	TimeFrom        time.Time
 	TimeTo          time.Time
-	CronEntries     []*Cronv
+	CronEntries     []*Record
 	Extras          []*Extra
 	durationMinutes float64
 }
 
-func NewCtx(opts *Command) (*CronvCtx, error) {
+func NewVisualizer(opts *Command) (*Visualizer, error) {
 	timeFrom, err := opts.toFromTime()
 	if err != nil {
 		return nil, err
@@ -83,7 +82,7 @@ func NewCtx(opts *Command) (*CronvCtx, error) {
 		return nil, err
 	}
 
-	return &CronvCtx{
+	return &Visualizer{
 		Opts:            opts,
 		TimeFrom:        timeFrom,
 		TimeTo:          timeFrom.Add(time.Duration(durationMinutes) * time.Minute),
@@ -91,13 +90,13 @@ func NewCtx(opts *Command) (*CronvCtx, error) {
 	}, nil
 }
 
-func (self *CronvCtx) AppendNewLine(line string) (bool, error) {
+func (v *Visualizer) AppendNewLine(line string) (bool, error) {
 	trimed := strings.TrimSpace(line)
 	if len(trimed) == 0 || string(trimed[0]) == "#" {
 		return false, nil
 	}
 
-	cronv, extra, err := NewCronv(trimed, self.TimeFrom, self.durationMinutes)
+	record, extra, err := NewRecord(trimed, v.TimeFrom, v.durationMinutes)
 	if err != nil {
 		switch err.(type) {
 		case *InvalidTaskError:
@@ -107,21 +106,22 @@ func (self *CronvCtx) AppendNewLine(line string) (bool, error) {
 		}
 	}
 
-	if cronv != nil {
-		self.CronEntries = append(self.CronEntries, cronv)
+	if record != nil {
+		v.CronEntries = append(v.CronEntries, record)
 	}
+
 	if extra != nil {
-		self.Extras = append(self.Extras, extra)
+		v.Extras = append(v.Extras, extra)
 	}
 
 	return true, nil
 }
 
-func (self *CronvCtx) Dump() (string, error) {
-	output, err := os.Create(self.Opts.OutputFilePath)
+func (v *Visualizer) Dump() (string, error) {
+	output, err := os.Create(v.Opts.OutputFilePath)
 	if err != nil {
 		return "", err
 	}
-	makeTemplate().Execute(output, self)
-	return self.Opts.OutputFilePath, nil
+	makeTemplate().Execute(output, v)
+	return v.Opts.OutputFilePath, nil
 }

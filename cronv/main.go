@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/jessevdk/go-flags"
-	"github.com/takumakanari/cronv"
 	"os"
+
+	"github.com/jessevdk/go-flags"
+
+	"github.com/takumakanari/cronv"
 )
 
 const (
@@ -22,7 +24,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	ctx, err := cronv.NewCtx(opts)
+	ctx, err := cronv.NewVisualizer(opts)
 	if err != nil {
 		panic(err)
 	}

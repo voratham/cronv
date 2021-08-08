@@ -113,14 +113,14 @@ const TEMPLATE = `
 
 func makeTemplate() *template.Template {
 	funcMap := template.FuncMap{
-		"CronvIter": func(cronv *Cronv) <-chan *Exec {
+		"CronvIter": func(cronv *Record) <-chan *Exec {
 			return cronv.iter()
 		},
 		"JSEscapeString": func(v string) string {
 			return template.JSEscapeString(strings.TrimSpace(v))
 		},
 		"NewJsDate": func(v time.Time) string {
-			return fmt.Sprintf("new Date(%d,%d,%d,%d,%d)", v.Year(), v.Month() - 1, v.Day(), v.Hour(), v.Minute())
+			return fmt.Sprintf("new Date(%d,%d,%d,%d,%d)", v.Year(), v.Month()-1, v.Day(), v.Hour(), v.Minute())
 		},
 		"DateFormat": func(v time.Time, format string) string {
 			return v.Format(format)

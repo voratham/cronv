@@ -1,11 +1,12 @@
 package cronv
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -26,23 +27,23 @@ type Command struct {
 	Width          int    `short:"w" long:"width" description:"Table width of output"`
 }
 
-func (self *Command) toFromTime() (time.Time, error) {
+func (c *Command) toFromTime() (time.Time, error) {
 	return time.Parse(fmt.Sprintf("%s %s", optDateFormat, optTimeFormat),
-		fmt.Sprintf("%s %s", self.FromDate, self.FromTime))
+		fmt.Sprintf("%s %s", c.FromDate, c.FromTime))
 }
 
-func (self *Command) toDurationMinutes() (float64, error) {
-	length := len(self.Duration)
+func (c *Command) toDurationMinutes() (float64, error) {
+	length := len(c.Duration)
 	if length < 2 {
-		return 0, errors.New(fmt.Sprintf("Invalid duration format: '%s'", self.Duration))
+		return 0, errors.Errorf("invalid duration format: '%s'", c.Duration)
 	}
 
-	duration, err := strconv.Atoi(string(self.Duration[:length-1]))
+	duration, err := strconv.Atoi(string(c.Duration[:length-1]))
 	if err != nil {
-		return 0, errors.New(fmt.Sprintf("Invalid duration format: '%s', %s", self.Duration, err))
+		return 0, errors.Errorf("invalid duration format: '%s', %s", c.Duration, err)
 	}
 
-	unit := string(self.Duration[length-1])
+	unit := string(c.Duration[length-1])
 	switch strings.ToLower(unit) {
 	case "d":
 		return float64(duration * 24 * 60), nil
@@ -52,7 +53,7 @@ func (self *Command) toDurationMinutes() (float64, error) {
 		return float64(duration), nil
 	}
 
-	return 0, errors.New(fmt.Sprintf("Invalid duration format: '%s', '%s' is not in d/h/m", self.Duration, unit))
+	return 0, errors.Errorf("invalid duration format: '%s', '%s' is not in d/h/m", c.Duration, unit)
 }
 
 func NewCronvCommand() *Command {

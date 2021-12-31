@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewCronvCommand(t *testing.T) {
+func TestNewCronvOption(t *testing.T) {
 	baseTime := time.Date(1985, 12, 8, 11, 30, 0, 0, time.UTC)
 
 	type args struct {
@@ -41,7 +41,7 @@ func TestNewCronvCommand(t *testing.T) {
 	}
 }
 
-func TestCommand_toDurationMinutes(t *testing.T) {
+func TestOption_toDurationMinutes(t *testing.T) {
 	tests := []struct {
 		name     string
 		duration string
@@ -89,7 +89,7 @@ func TestCommand_toDurationMinutes(t *testing.T) {
 	}
 }
 
-func TestCommand_toFromTime(t *testing.T) {
+func TestOption_toFromTime(t *testing.T) {
 	tests := []struct {
 		name     string
 		fromDate string

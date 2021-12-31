@@ -2,53 +2,120 @@ package cronv
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewCronvCommandDefaultParameters(t *testing.T) {
-	cmd := NewCronvCommand()
-	assert.NotNil(t, cmd)
-	assert.NotNil(t, cmd.FromDate)
-	assert.NotNil(t, cmd.FromTime)
-	assert.Equal(t, cmd.OutputFilePath, optDefaultOutputPath, "")
-	assert.Equal(t, cmd.Duration, optDefaultDuration, "")
+func TestNewCronvCommand(t *testing.T) {
+	baseTime := time.Date(1985, 12, 8, 11, 30, 0, 0, time.UTC)
+
+	type args struct {
+		t time.Time
+	}
+	tests := []struct {
+		name string
+		args args
+		want *Command
+	}{
+		{
+			name: "set default properties",
+			args: args{
+				t: baseTime,
+			},
+			want: &Command{
+				OutputFilePath: optDefaultOutputPath,
+				Duration:       optDefaultDuration,
+				FromDate:       "1985/12/08",
+				FromTime:       "11:30",
+				Title:          optDefaultTitle,
+				Width:          optDefaultWidth,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ret := NewCronvCommand(tt.args.t)
+			assert.Equal(t, tt.want, ret)
+		})
+	}
 }
 
-func TestToDurationMinutesValid(t *testing.T) {
-	cmd := NewCronvCommand()
-	cmd.Duration = "1m"
-	ret, _ := cmd.toDurationMinutes()
-	assert.Equal(t, ret, float64(1), "")
-
-	cmd = NewCronvCommand()
-	cmd.Duration = "2h"
-	ret2, _ := cmd.toDurationMinutes()
-	assert.Equal(t, ret2, float64(1*60*2), "")
-
-	cmd = NewCronvCommand()
-	cmd.Duration = "3d"
-	ret3, _ := cmd.toDurationMinutes()
-	assert.Equal(t, ret3, float64(1*60*24*3), "")
+func TestCommand_toDurationMinutes(t *testing.T) {
+	tests := []struct {
+		name     string
+		duration string
+		want     float64
+		wantErr  bool
+	}{
+		{
+			name:     "valid (1m)",
+			duration: "1m",
+			want:     float64(1),
+		},
+		{
+			name:     "valid (2h)",
+			duration: "2h",
+			want:     float64(1 * 60 * 2),
+		},
+		{
+			name:     "valid (3d)",
+			duration: "3d",
+			want:     float64(1 * 60 * 24 * 3),
+		},
+		{
+			name:     "invalid (not a duration string)",
+			duration: "INVALID",
+			wantErr:  true,
+		},
+		{
+			name:     "invalid (unknown suffix)",
+			duration: "1F",
+			wantErr:  true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCronvCommand(time.Now())
+			c.Duration = tt.duration
+			ret, err := c.toDurationMinutes()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tt.want, ret)
+		})
+	}
 }
 
-func TestToDurationMinutesInValid(t *testing.T) {
-	cmd := NewCronvCommand()
-	cmd.Duration = "INVALID"
-	_, err := cmd.toDurationMinutes()
-	assert.NotNil(t, err)
-
-	cmd = NewCronvCommand()
-	cmd.Duration = "1F"
-	_, err2 := cmd.toDurationMinutes()
-	assert.NotNil(t, err2)
-}
-
-func TestToFromTime(t *testing.T) {
-	cmd := NewCronvCommand()
-	cmd.FromDate = "2016/11/08"
-	cmd.FromTime = "01:30"
-	ret, err := cmd.toFromTime()
-	assert.NotNil(t, ret)
-	assert.Nil(t, err)
+func TestCommand_toFromTime(t *testing.T) {
+	tests := []struct {
+		name     string
+		fromDate string
+		fromTime string
+		want     time.Time
+		wantErr  bool
+	}{
+		{
+			name:     "successfully",
+			fromDate: "2016/11/08",
+			fromTime: "01:30",
+			want:     time.Date(2016, 11, 8, 1, 30, 0, 0, time.UTC),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCronvCommand(time.Now())
+			c.FromDate = tt.fromDate
+			c.FromTime = tt.fromTime
+			ret, err := c.toFromTime()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tt.want, ret)
+		})
+	}
 }

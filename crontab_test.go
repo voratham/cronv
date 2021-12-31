@@ -7,55 +7,114 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParse(t *testing.T) {
-	line := "01 04 1 2 3	/usr/bin/somedirectory/somecommand1"
-	r, _, _ := parse(context.Background(), line)
-	assert.NotNil(t, r)
-	assert.Equal(t, r.Line, line)
-	assert.Equal(t, r.Schedule.Minute, "01")
-	assert.Equal(t, r.Schedule.Hour, "04")
-	assert.Equal(t, r.Schedule.DayOfMonth, "1")
-	assert.Equal(t, r.Schedule.Month, "2")
-	assert.Equal(t, r.Schedule.DayOfWeek, "3")
-	assert.Equal(t, r.Job, "/usr/bin/somedirectory/somecommand1")
+func Test_parse(t *testing.T) {
+	type args struct {
+		line string
+	}
+	tests := []struct {
+		name        string
+		args        args
+		wantCrontab *Crontab
+		wantExtra   *Extra
+		wantErr     bool
+	}{
+		{
+			name: "parse successfully",
+			args: args{
+				line: "01 04 1 2 3	/usr/bin/somedirectory/somecommand1",
+			},
+			wantCrontab: &Crontab{
+				Line: "01 04 1 2 3	/usr/bin/somedirectory/somecommand1",
+				Schedule: &Schedule{
+					Minute:     "01",
+					Hour:       "04",
+					DayOfMonth: "1",
+					Month:      "2",
+					DayOfWeek:  "3",
+				},
+				Job: "/usr/bin/somedirectory/somecommand1",
+			},
+		},
+		{
+			name: "invalid task",
+			args: args{
+				line: "MAILTO=example.com",
+			},
+			wantErr: true,
+		},
+		{
+			name: "alias",
+			args: args{
+				line: "@hourly /path/to/do/something arg1",
+			},
+			wantCrontab: &Crontab{
+				Line: "@hourly /path/to/do/something arg1",
+				Schedule: &Schedule{
+					Alias: "@hourly",
+				},
+				Job: "/path/to/do/something arg1",
+			},
+		},
+		{
+			name: "extra",
+			args: args{
+				line: "@reboot root /path/to/do/something arg1 arg2 arg3",
+			},
+			wantExtra: &Extra{
+				Line:  "@reboot root /path/to/do/something arg1 arg2 arg3",
+				Label: "@reboot",
+				Job:   "root /path/to/do/something arg1 arg2 arg3",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			crontab, extra, err := parse(context.Background(), tt.args.line)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tt.wantCrontab, crontab)
+			assert.Equal(t, tt.wantExtra, extra)
+		})
+	}
 }
 
-func TestParseInvalidTask(t *testing.T) {
-	line := "MAILTO=example.com"
-	_, _, err := parse(context.Background(), line)
-	assert.NotNil(t, err)
-}
-
-func TestIsRunningEveryMinutesFalseCase(t *testing.T) {
-	c, _, _ := parse(context.Background(), "3 * * * *")
-	assert.False(t, c.isRunningEveryMinutes())
-
-	c2, _, _ := parse(context.Background(), "* * * * 1")
-	assert.False(t, c2.isRunningEveryMinutes())
-}
-
-func TestIsRunningEveryMinutesTrueCase(t *testing.T) {
-	c, _, _ := parse(context.Background(), "* * * * *")
-	assert.True(t, c.isRunningEveryMinutes())
-
-	c2, _, _ := parse(context.Background(), "*/1 * * * *")
-	assert.True(t, c2.isRunningEveryMinutes())
-}
-
-func TestAlias(t *testing.T) {
-	line := "@hourly /path/to/do/something arg1"
-	c, _, err := parse(context.Background(), line)
-	assert.Nil(t, err)
-	assert.Equal(t, c.Schedule.Alias, "@hourly")
-	assert.Equal(t, c.Job, "/path/to/do/something arg1")
-}
-
-func TestExtra(t *testing.T) {
-	line := "@reboot root /path/to/do/something arg1 arg2 arg3"
-	c, e, _ := parse(context.Background(), line)
-	assert.Nil(t, c)
-	assert.NotNil(t, e)
-	assert.Equal(t, e.Line, line)
-	assert.Equal(t, e.Label, "@reboot")
-	assert.Equal(t, e.Job, "root /path/to/do/something arg1 arg2 arg3")
+func TestCrontab_isRunningEveryMinutes(t *testing.T) {
+	tests := []struct {
+		name    string
+		crontab string
+		want    bool
+	}{
+		{
+			name:    "false (only min=3)",
+			crontab: "3 * * * *",
+			want:    false,
+		},
+		{
+			name:    "false (every minutes but only hour=1)",
+			crontab: "* 1 * * *",
+			want:    false,
+		},
+		{
+			name:    "every minutes by wildcard",
+			crontab: "* * * * *",
+			want:    true,
+		},
+		{
+			name:    "every minutes",
+			crontab: "*/1 * * * *",
+			want:    true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, _, err := parse(context.Background(), tt.crontab)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assert.Equal(t, tt.want, c.isRunningEveryMinutes())
+		})
+	}
 }

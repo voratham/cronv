@@ -16,14 +16,14 @@ func TestNewCronvCommand(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *Command
+		want *Option
 	}{
 		{
 			name: "set default properties",
 			args: args{
 				t: baseTime,
 			},
-			want: &Command{
+			want: &Option{
 				OutputFilePath: optDefaultOutputPath,
 				Duration:       optDefaultDuration,
 				FromDate:       "1985/12/08",
@@ -35,7 +35,7 @@ func TestNewCronvCommand(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ret := NewCronvCommand(tt.args.t)
+			ret := NewCronvOption(tt.args.t)
 			assert.Equal(t, tt.want, ret)
 		})
 	}
@@ -76,7 +76,7 @@ func TestCommand_toDurationMinutes(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := NewCronvCommand(time.Now())
+			c := NewCronvOption(time.Now())
 			c.Duration = tt.duration
 			ret, err := c.toDurationMinutes()
 			if tt.wantErr {
@@ -106,7 +106,7 @@ func TestCommand_toFromTime(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := NewCronvCommand(time.Now())
+			c := NewCronvOption(time.Now())
 			c.FromDate = tt.fromDate
 			c.FromTime = tt.fromTime
 			ret, err := c.toFromTime()

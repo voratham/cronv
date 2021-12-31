@@ -66,7 +66,7 @@ func (r *Record) iter() <-chan *Exec {
 }
 
 type Visualizer struct {
-	Opts            *Command
+	Opts            *Option
 	TimeFrom        time.Time
 	TimeTo          time.Time
 	CronEntries     []*Record
@@ -74,7 +74,7 @@ type Visualizer struct {
 	durationMinutes float64
 }
 
-func NewVisualizer(opts *Command) (*Visualizer, error) {
+func NewVisualizer(opts *Option) (*Visualizer, error) {
 	timeFrom, err := opts.toFromTime()
 	if err != nil {
 		return nil, errors.WithStack(err)

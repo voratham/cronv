@@ -18,7 +18,7 @@ const (
 )
 
 func main() {
-	opts := cronv.NewCronvCommand(time.Now())
+	opts := cronv.NewCronvOption(time.Now())
 
 	parser := flags.NewParser(opts, flags.Default)
 	parser.Name = fmt.Sprintf("%s v%s", name, version)

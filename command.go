@@ -56,8 +56,7 @@ func (c *Command) toDurationMinutes() (float64, error) {
 	return 0, errors.Errorf("invalid duration format: '%s', '%s' is not in d/h/m", c.Duration, unit)
 }
 
-func NewCronvCommand() *Command {
-	t := time.Now()
+func NewCronvCommand(t time.Time) *Command {
 	now := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.UTC)
 	return &Command{
 		OutputFilePath: optDefaultOutputPath,

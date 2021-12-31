@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jessevdk/go-flags"
 
@@ -17,7 +18,7 @@ const (
 )
 
 func main() {
-	opts := cronv.NewCronvCommand()
+	opts := cronv.NewCronvCommand(time.Now())
 
 	parser := flags.NewParser(opts, flags.Default)
 	parser.Name = fmt.Sprintf("%s v%s", name, version)

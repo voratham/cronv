@@ -5,14 +5,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.12
+      - image: circleci/golang:1.17
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/takumakanari/cronv
     steps:
       - checkout
       - run: go test -v ./... -bench .
-
       - run: mkdir -p /go/src/github.com/takumakanari/cronv/cmd
       - run: go build -o cmd/cronv cronv/main.go
       - store_artifacts:

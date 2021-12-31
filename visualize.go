@@ -2,13 +2,15 @@ package cronv
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/tkmgo/cronexpr"
 )
+
+var errInvalidTask *InvalidTaskError
 
 type Record struct {
 	Crontab         *Crontab
@@ -20,7 +22,7 @@ type Record struct {
 func newRecord(ctx context.Context, line string, startTime time.Time, durationMinutes float64) (*Record, *Extra, error) {
 	crontab, extra, err := parse(ctx, line)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.WithStack(err)
 	}
 
 	// Maybe the line was extra (@reboot, ENV etc ...)
@@ -30,7 +32,7 @@ func newRecord(ctx context.Context, line string, startTime time.Time, durationMi
 
 	expr, err := cronexpr.Parse(crontab.Schedule.toCrontab())
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.WithStack(err)
 	}
 
 	return &Record{
@@ -75,12 +77,12 @@ type Visualizer struct {
 func NewVisualizer(opts *Command) (*Visualizer, error) {
 	timeFrom, err := opts.toFromTime()
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	durationMinutes, err := opts.toDurationMinutes()
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	return &Visualizer{
@@ -99,18 +101,14 @@ func (v *Visualizer) Add(ctx context.Context, line string) (bool, error) {
 
 	record, extra, err := newRecord(ctx, trimed, v.TimeFrom, v.durationMinutes)
 	if err != nil {
-		switch err.(type) {
-		case *InvalidTaskError:
+		if errors.As(err, &errInvalidTask) {
 			return false, nil // pass
-		default:
-			return false, fmt.Errorf("failed to analyze cron '%s': %s", line, err)
 		}
+		return false, errors.Errorf("failed to analyze cron '%s': %s", line, err)
 	}
-
 	if record != nil {
 		v.CronEntries = append(v.CronEntries, record)
 	}
-
 	if extra != nil {
 		v.Extras = append(v.Extras, extra)
 	}
@@ -121,7 +119,7 @@ func (v *Visualizer) Add(ctx context.Context, line string) (bool, error) {
 func (v *Visualizer) Dump(ctx context.Context) (string, error) {
 	output, err := os.Create(v.Opts.OutputFilePath)
 	if err != nil {
-		return "", err
+		return "", errors.Wrapf(err, "unnable to create %s", v.Opts.OutputFilePath)
 	}
 	makeTemplate().Execute(output, v)
 	return v.Opts.OutputFilePath, nil

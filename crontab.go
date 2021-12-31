@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type Schedule struct {
@@ -79,7 +81,7 @@ func parse(ctx context.Context, line string) (*Crontab, *Extra, error) {
 		job = parts[1:]
 	} else {
 		if len(parts) < 5 {
-			return nil, nil, &InvalidTaskError{line}
+			return nil, nil, errors.WithStack(&InvalidTaskError{line})
 		}
 
 		// https://en.wikipedia.org/wiki/Cron#Predefined_scheduling_definitions

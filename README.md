@@ -8,12 +8,12 @@ Visualize your cron schedules in crontab
 ![cronv output 30m](https://raw.github.com/wiki/takumakanari/cronv/images/outputs/cronv-30m.png)
 
 
-## Installation
+## Install
+
+## go install
 
 ```shell
-$ go get github.com/takumakanari/cronv/cronv
-$ go build -o ./cronv github.com/takumakanari/cronv/cronv
-$ mv ./cronv /usr/local/bin # or anywhere
+go install -v github.com/takumakanari/cronv/cronv@0.4.5
 ```
 
 ```shell

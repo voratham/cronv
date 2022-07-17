@@ -1,0 +1,28 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+#crontab service example
+15 17 * * * service-a
+*/30 * * * * service-b
+15 20,2,8,14 * * * service-c
+0 */1 * * * service-cron-1
+0 */1 * * * service-cron-2
+*/30 * * * * service-cron-3
+0 */1 * * * service-cron-4
+15 17 * * * cron-workload
+0 19 * * * temp-1
+0 19 * * * temp-2
+0 0 1 1 * service-backup-1
+0 20 * * * service-backup-2
+15 21,3,9,15 * * * service-cron
+0 15 30 2 * in-case-system-1
+30 21 * * * in-case-system-2
+0 18 * * * static-cron
+30 16 * * * foobar-1
+*/5 * * * * foo-1
+0 */1 * * * foo-2
+0 0 30 2 * cron-day-of-month-0
+30 02 * * * cron-day-of-month-1
+30 21 * * * cron-day-of-month-2

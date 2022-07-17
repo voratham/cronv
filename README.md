@@ -2,11 +2,16 @@
 
 [![CircleCI](https://circleci.com/gh/takumakanari/cronv.svg?style=svg)](https://circleci.com/gh/takumakanari/cronv)
 
-Visualize your cron schedules in crontab
+## Visualize your cron schedules in crontab
 
+### **🚀  For my version add search-bar on html template because we would like to software qa engineer easier to use, In additional we have put idea show warning crontab that out of bounds 1 week**
+
+<img src="./screenshot/example.png" />
+
+
+## **Original version from takumakanari**
 ![cronv output 1d](https://raw.github.com/wiki/takumakanari/cronv/images/outputs/cronv-1d.png)
 ![cronv output 30m](https://raw.github.com/wiki/takumakanari/cronv/images/outputs/cronv-30m.png)
-
 
 ## Install
 
